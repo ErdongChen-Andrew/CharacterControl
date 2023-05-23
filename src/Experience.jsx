@@ -48,7 +48,7 @@ export default function Experience() {
 
       <Lights />
 
-      <Physics debug={physics}>
+      <Physics debug={physics} timeStep="vary" >
         {/* Character */}
         <KeyboardControls map={keyboardMap}>
           <Character />
