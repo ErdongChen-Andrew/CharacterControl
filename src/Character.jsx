@@ -17,6 +17,7 @@ export default function Character() {
   const {
     maxVelLimit,
     turnVelMultiplier,
+    turnSpeed,
     sprintMult,
     jumpVel,
     sprintJumpMult,
@@ -30,10 +31,16 @@ export default function Character() {
       step: 0.01,
     },
     turnVelMultiplier: {
-      value: 0.1,
+      value: 0.3,
       min: 0,
       max: 1,
       step: 0.01,
+    },
+    turnSpeed: {
+      value: 18,
+      min: 5,
+      max: 30,
+      step: 0.1,
     },
     sprintMult: {
       value: 1.5,
@@ -98,36 +105,39 @@ export default function Character() {
     }
   );
 
-  const { slopeRayOriginOffest,slopeRayLength,slopeRayDir,slopeUpExtraForce,slopeDownExtraForce } = useControls(
-    "Slope Ray",
-    {
-      slopeRayOriginOffest:{
-        value: 0.28,
-        min: 0,
-        max: 3,
-        step: 0.01,
-      },
-      slopeRayLength:{
-        value: 1.5,
-        min: 0,
-        max: 3,
-        step: 0.01,
-      },
-      slopeRayDir:{ x: 0, y: -1, z: 0 },
-      slopeUpExtraForce:{
-        value: 1.5,
-        min: 0,
-        max: 5,
-        step: 0.01,
-      },
-      slopeDownExtraForce:{
-        value: 4,
-        min: 0,
-        max: 5,
-        step: 0.01,
-      }
-    }
-  );
+  const {
+    slopeRayOriginOffest,
+    slopeRayLength,
+    slopeRayDir,
+    slopeUpExtraForce,
+    slopeDownExtraForce,
+  } = useControls("Slope Ray", {
+    slopeRayOriginOffest: {
+      value: 0.28,
+      min: 0,
+      max: 3,
+      step: 0.01,
+    },
+    slopeRayLength: {
+      value: 1.5,
+      min: 0,
+      max: 3,
+      step: 0.01,
+    },
+    slopeRayDir: { x: 0, y: -1, z: 0 },
+    slopeUpExtraForce: {
+      value: 1.5,
+      min: 0,
+      max: 5,
+      step: 0.01,
+    },
+    slopeDownExtraForce: {
+      value: 4,
+      min: 0,
+      max: 5,
+      step: 0.01,
+    },
+  });
 
   /**
    * keyboard controls setup
@@ -378,7 +388,10 @@ export default function Character() {
 
     // Rotate character model
     modelQuat.setFromEuler(modelEuler);
-    characterModelRef.current.quaternion.rotateTowards(modelQuat, delta * 10);
+    characterModelRef.current.quaternion.rotateTowards(
+      modelQuat,
+      delta * turnSpeed
+    );
 
     /**
      *  Camera movement
@@ -530,9 +543,9 @@ export default function Character() {
       isOnMovingObject
     ) {
       dragForce.set(
-        (movingObjectVelocity.x - currentVel.x) * dragDampingC*2,
+        (movingObjectVelocity.x - currentVel.x) * dragDampingC * 2,
         0,
-        (movingObjectVelocity.z - currentVel.z) * dragDampingC*2
+        (movingObjectVelocity.z - currentVel.z) * dragDampingC * 2
       );
       characterRef.current.applyImpulse(dragForce);
     }
