@@ -23,6 +23,7 @@ export default function Character() {
     sprintJumpMult,
     airDragMultiplier,
     dragDampingC,
+    accDeltaTime,
   } = useControls("Character controls", {
     maxVelLimit: {
       value: 5,
@@ -31,7 +32,7 @@ export default function Character() {
       step: 0.01,
     },
     turnVelMultiplier: {
-      value: 0.3,
+      value: 0.1,
       min: 0,
       max: 1,
       step: 0.01,
@@ -61,7 +62,7 @@ export default function Character() {
       step: 0.01,
     },
     airDragMultiplier: {
-      value: 0.05,
+      value: 0.01,
       min: 0,
       max: 1,
       step: 0.01,
@@ -71,6 +72,12 @@ export default function Character() {
       min: 0,
       max: 0.5,
       step: 0.01,
+    },
+    accDeltaTime: {
+      value: 8,
+      min: 0,
+      max: 50,
+      step: 1,
     },
   });
 
@@ -251,7 +258,7 @@ export default function Character() {
         (currentVel.x -
           movingObjectVelocity.x *
             Math.sin(angleBetweenCharacterDirAndObjectDir))) /
-        (delta * 100),
+        accDeltaTime,
       0,
       (movingDirection.z *
         (maxVelLimit + movingObjectVelocityInCharacterDir.z) *
@@ -259,7 +266,7 @@ export default function Character() {
         (currentVel.z -
           movingObjectVelocity.z *
             Math.sin(angleBetweenCharacterDirAndObjectDir))) /
-        (delta * 100)
+        accDeltaTime
     );
 
     // Wanted to move force function: F = ma
