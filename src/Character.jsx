@@ -250,6 +250,7 @@ export default function Character() {
 
     /**
      * Calculate required accelaration and force: a = Δv/Δt
+     * If it's on a moving/rotating platform, apply platform velocity to Δv accordingly
      */
     moveAccNeeded.set(
       (movingDirection.x *
@@ -286,19 +287,19 @@ export default function Character() {
       moveImpulse.set(
         moveForceNeeded.x *
           turnVelMultiplier *
-          (canJump ? 1 : airDragMultiplier),
+          (canJump ? 1 : airDragMultiplier), // if it's in the air, give it less control
         // -rejectVel.x * dragDampingC,
-        slopeAngle === null
+        slopeAngle === null || slopeAngle == 0 // if it's on a slope, apply extra up/down force to the body
           ? 0
           : movingDirection.y *
               turnVelMultiplier *
-              (movingDirection.y > 0
+              (movingDirection.y > 0 // check it is on slope up or slope down
                 ? slopeUpExtraForce
                 : slopeDownExtraForce) *
               (run ? sprintMult : 1),
         moveForceNeeded.z *
           turnVelMultiplier *
-          (canJump ? 1 : airDragMultiplier)
+          (canJump ? 1 : airDragMultiplier) // if it's in the air, give it less control
         // -rejectVel.z * dragDampingC
       );
     }
@@ -307,10 +308,10 @@ export default function Character() {
       moveImpulse.set(
         moveForceNeeded.x * (canJump ? 1 : airDragMultiplier),
         // -rejectVel.x * dragDampingC,
-        slopeAngle === null
+        slopeAngle === null || slopeAngle == 0 // if it's on a slope, apply extra up/down force to the body
           ? 0
           : movingDirection.y *
-              (movingDirection.y > 0
+              (movingDirection.y > 0 // check it is on slope up or slope down
                 ? slopeUpExtraForce
                 : slopeDownExtraForce) *
               (run ? sprintMult : 1),
