@@ -504,7 +504,6 @@ export default function Character() {
           characterRef.current.linvel().y * dampingC;
         characterRef.current.applyImpulse(
           springDirVec.set(0, floatingForce, 0),
-          true
         );
 
         // Apply opposite force to standing object
@@ -515,7 +514,6 @@ export default function Character() {
         );
         rayHit.collider.parent().applyImpulseAtPoint(
           characterMassForce,
-          // rayHit.collider.parent().translation(),
           characterRef.current.translation(),
           true
         );
@@ -555,7 +553,7 @@ export default function Character() {
         0,
         (movingObjectVelocity.z - currentVel.z) * dragDampingC * 2
       );
-      characterRef.current.applyImpulse(dragForce);
+      characterRef.current.applyImpulse(dragForce,true);
     }
   });
 
