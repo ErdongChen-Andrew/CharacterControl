@@ -1,5 +1,7 @@
 # Floating Capsule Character Controller
 
+[![Video](https://img.youtube.com/vi/7h4ydBeryK8/0.jpg)](https://www.youtube.com/watch?v=7h4ydBeryK8){.youtube}
+
 Simple web based character controller build on [react-three-fiber](https://github.com/pmndrs/react-three-fiber) and [react-three-rapier](https://github.com/pmndrs/react-three-rapier). It provides a playground demo where you can experience the following features:
 
 1. Seamless movement over small obstacles
