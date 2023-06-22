@@ -9,7 +9,7 @@ export default function FloatingPlatform() {
   const floatingPlateRef = useRef();
   const floatingPlateRef2 = useRef();
   const { rapier, world } = useRapier();
-  const rapierWorld = world.raw();
+  // const rapierWorld = world.raw();
 
   /**
    * Ray setup
@@ -48,7 +48,7 @@ export default function FloatingPlatform() {
       floatingPlateRef.current.translation().z
     );
     const rayCast = new rapier.Ray(origin, rayDir);
-    const rayHit = rapierWorld.castRay(
+    const rayHit = world.castRay(
       rayCast,
       rayLength,
       true,
@@ -64,7 +64,7 @@ export default function FloatingPlatform() {
       floatingPlateRef2.current.translation().z
     );
     const rayCast2 = new rapier.Ray(origin2, rayDir);
-    const rayHit2 = rapierWorld.castRay(
+    const rayHit2 = world.castRay(
       rayCast2,
       rayLength,
       true,

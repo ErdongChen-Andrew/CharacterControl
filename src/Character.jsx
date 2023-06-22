@@ -151,7 +151,8 @@ export default function Character() {
    */
   const [subscribeKeys, getKeys] = useKeyboardControls();
   const { rapier, world } = useRapier();
-  const rapierWorld = world.raw();
+  // console.log(rapierWorld.castRay);
+  // const rapierWorld = world.raw();
 
   // can jump setup
   const [canJump, setCanJump] = useState(false);
@@ -417,7 +418,7 @@ export default function Character() {
      */
     const origin = characterRef.current.translation();
     const rayCast = new rapier.Ray(origin, rayDir);
-    const rayHit = rapierWorld.castRay(
+    const rayHit = world.castRay(
       rayCast,
       rayLength,
       true,
@@ -473,7 +474,7 @@ export default function Character() {
      */
     slopeRayOriginRef.current.getWorldPosition(slopeRayorigin);
     const slopeRayCast = new rapier.Ray(slopeRayorigin, slopeRayDir);
-    const slopeRayHit = rapierWorld.castRay(
+    const slopeRayHit = world.castRay(
       slopeRayCast,
       slopeRayLength,
       true,
