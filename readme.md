@@ -11,6 +11,10 @@ Simple web based character controller build on [react-three-fiber](https://githu
 5. Realistic simulation with applied mass on supporting surfaces
 6. Smooth integration with moving and rotating platforms
 
+## New Features
+
+Character Auto Balance (2023-07-27)
+
 ## Project Link
 
 Live Demo: [Floating Capsule Character Controller](https://character-control.vercel.app/)
