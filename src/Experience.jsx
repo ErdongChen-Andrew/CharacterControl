@@ -39,8 +39,7 @@ export default function Experience() {
       <Perf position="top-left" />
 
       <Grid
-        infiniteGrid
-        followCamera
+        args={[300,300]}
         sectionColor={"lightgray"}
         cellColor={"gray"}
         position={[0, -0.99, 0]}
