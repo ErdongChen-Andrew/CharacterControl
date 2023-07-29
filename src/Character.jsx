@@ -110,7 +110,7 @@ export default function Character() {
       },
       rayDir: { x: 0, y: -1, z: 0 },
       floatingDis: {
-        value: 0.5,
+        value: 0.6,
         min: 0,
         max: 2,
         step: 0.01,
