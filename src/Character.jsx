@@ -116,7 +116,7 @@ export default function Character() {
         step: 0.01,
       },
       springK: {
-        value: 3,
+        value: 1.5,
         min: 0,
         max: 5,
         step: 0.01,
@@ -524,8 +524,13 @@ export default function Character() {
      */
     if (rayHit && canJump) {
       const rayHitObjectBodyType = rayHit.collider.parent().bodyType();
+      const rayHitObjectBodyMass = rayHit.collider.parent().mass();
       // Body type 0 is rigid body, body type 1 is fixed body, body type 2 is kinematic body
-      if (rayHitObjectBodyType === 0 || rayHitObjectBodyType === 2) {
+      // And iff it stands on big mass object (>0.5)
+      if (
+        (rayHitObjectBodyType === 0 || rayHitObjectBodyType === 2) &&
+        rayHitObjectBodyMass > 0.5
+      ) {
         setIsOnMovingObject(true);
         // Calculate distance between character and moving object
         distanceFromCharacterToObject
@@ -608,7 +613,7 @@ export default function Character() {
         // Apply opposite force to standing object
         characterMassForce.set(
           0,
-          -characterRef.current.mass() * characterRef.current.gravityScale(),
+          -characterRef.current.mass() * characterRef.current.gravityScale()/10,
           0
         );
         rayHit.collider
