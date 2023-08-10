@@ -2,7 +2,7 @@ import { useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, CapsuleCollider, useRapier } from "@react-three/rapier";
 import { useEffect } from "react";
-import { useRef, useMemo, useState } from "react";
+import { useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useControls } from "leva";
 import useFollowCam from "./hooks/useFollowCam";
@@ -34,13 +34,13 @@ export default function Character() {
       step: 0.01,
     },
     turnVelMultiplier: {
-      value: 0.1,
+      value: 0.8,
       min: 0,
       max: 1,
       step: 0.01,
     },
     turnSpeed: {
-      value: 18,
+      value: 20,
       min: 5,
       max: 30,
       step: 0.1,
@@ -88,7 +88,7 @@ export default function Character() {
       step: 0.1,
     },
     camFollowMult: {
-      value: 6,
+      value: 11,
       min: 0,
       max: 15,
       step: 0.1,
@@ -103,9 +103,9 @@ export default function Character() {
         z: 0,
       },
       rayLength: {
-        value: 1.5,
+        value: 2,
         min: 0,
-        max: 3,
+        max: 10,
         step: 0.01,
       },
       rayDir: { x: 0, y: -1, z: 0 },
@@ -143,9 +143,9 @@ export default function Character() {
       step: 0.01,
     },
     slopeRayLength: {
-      value: 1.5,
+      value: 2.5,
       min: 0,
-      max: 3,
+      max: 10,
       step: 0.01,
     },
     slopeRayDir: { x: 0, y: -1, z: 0 },
@@ -163,40 +163,46 @@ export default function Character() {
     },
   });
 
-  const { autoBalance, autoBalanceSpringK, autoBalanceDampingC } = useControls(
-    "autoBalance force",
-    {
-      autoBalance: {
-        value: true,
-      },
-      autoBalanceSpringK: {
-        value: 0.4,
-        min: 0,
-        max: 5,
-        step: 0.01,
-      },
-      autoBalanceDampingC: {
-        value: 0.025,
-        min: 0,
-        max: 0.1,
-        step: 0.001,
-      },
-    }
-  );
+  const {
+    autoBalance,
+    autoBalanceSpringK,
+    autoBalanceDampingC,
+    autoBalanceDampingOnY,
+  } = useControls("autoBalance force", {
+    autoBalance: {
+      value: true,
+    },
+    autoBalanceSpringK: {
+      value: 0.4,
+      min: 0,
+      max: 5,
+      step: 0.01,
+    },
+    autoBalanceDampingC: {
+      value: 0.025,
+      min: 0,
+      max: 0.1,
+      step: 0.001,
+    },
+    autoBalanceDampingOnY: {
+      value: 0.02,
+      min: 0,
+      max: 0.1,
+      step: 0.001,
+    },
+  });
 
   /**
    * keyboard controls setup
    */
   const [subscribeKeys, getKeys] = useKeyboardControls();
   const { rapier, world } = useRapier();
-  // console.log(rapierWorld.castRay);
-  // const rapierWorld = world.raw();
 
   // can jump setup
-  const [canJump, setCanJump] = useState(false);
+  let canJump = false;
 
   // on moving object state
-  const [isOnMovingObject, setIsOnMovingObject] = useState(false);
+  let isOnMovingObject = false;
   const movingObjectVelocity = useMemo(() => new THREE.Vector3());
   const movingObjectVelocityInCharacterDir = useMemo(() => new THREE.Vector3());
   const distanceFromCharacterToObject = useMemo(() => new THREE.Vector3());
@@ -205,19 +211,12 @@ export default function Character() {
   /**
    * Initial setup
    */
-  let dirLight;
-  // const turnVelMultiplier = 0.04;
-  // const maxVelLimit = 5;
-  // const jumpVel = 4;
-  // const sprintMult = 1.5;
-  // const sprintJumpMult = 1.2;
-  // const dragDampingC = 0.05;
-  // const airDragMultiplier = 0.03;
+  let dirLight = null;
 
   /**
    * Load camera pivot and character move preset
    */
-  const { pivot, followCam } = useFollowCam();
+  const { pivot, followCam, cameraCollisionDetect } = useFollowCam();
   const pivotPosition = useMemo(() => new THREE.Vector3());
   const modelEuler = useMemo(() => new THREE.Euler(), []);
   const modelQuat = useMemo(() => new THREE.Quaternion(), []);
@@ -234,14 +233,12 @@ export default function Character() {
   /**
    * Floating Ray setup
    */
-  // const rayLength = 1.5;
-  // const rayDir = { x: 0, y: -1, z: 0 };
+  let floatingForce = null;
   const springDirVec = useMemo(() => new THREE.Vector3());
   const characterMassForce = useMemo(() => new THREE.Vector3());
   const rayOrigin = useMemo(() => new THREE.Vector3());
-  // const floatingDis = 0.8;
-  // const springK = 3;
-  // const dampingC = 0.2;
+  const rayCast = new rapier.Ray(rayOrigin, rayDir);
+  let rayHit = null;
 
   /**
    * Slope detection ray setup
@@ -251,13 +248,10 @@ export default function Character() {
   let actualSlopeAngle = null;
   const actualSlopeNormalVec = useMemo(() => new THREE.Vector3());
   const floorNormal = useMemo(() => new THREE.Vector3(0, 1, 0));
-  // const slopeRayOriginOffest = 0.28;
   const slopeRayOriginRef = useRef();
-  // const slopeRayLength = 1.5;
-  // const slopeUpExtraForce = 1.5;
-  // const slopeDownExtraForce = 4;
-  // const slopeRayDir = { x: 0, y: -1, z: 0 };
   const slopeRayorigin = useMemo(() => new THREE.Vector3());
+  const slopeRayCast = new rapier.Ray(slopeRayorigin, slopeRayDir);
+  let slopeRayHit = null;
 
   /**
    * Character moving function
@@ -397,7 +391,8 @@ export default function Character() {
     dragAngForce.set(
       -autoBalanceSpringK * characterRef.current.rotation().x -
         characterRef.current.angvel().x * autoBalanceDampingC,
-      0,
+      -autoBalanceSpringK * characterRef.current.rotation().y -
+        characterRef.current.angvel().y * autoBalanceDampingOnY,
       -autoBalanceSpringK * characterRef.current.rotation().z -
         characterRef.current.angvel().z * autoBalanceDampingC
     );
@@ -405,18 +400,20 @@ export default function Character() {
   };
 
   useEffect(() => {
-    // Lock character rotations at Y axis
-    characterRef.current.setEnabledRotations(
-      autoBalance ? true : false,
-      false,
-      autoBalance ? true : false
-    );
-
     // Initialize directional light
     dirLight = characterModelRef.current.parent.parent.children.find((item) => {
       return item.type === "DirectionalLight";
     });
   });
+
+  useEffect(() => {
+    // Lock character rotations at Y axis
+    characterRef.current.setEnabledRotations(
+      autoBalance ? true : false,
+      autoBalance ? true : false,
+      autoBalance ? true : false
+    );
+  }, []);
 
   useFrame((state, delta) => {
     // Character current position
@@ -496,15 +493,14 @@ export default function Character() {
      *  Camera movement
      */
     pivotPosition.set(currentPos.x, currentPos.y + 0.5, currentPos.z);
-    pivot.position.lerp(pivotPosition, delta * camFollowMult);
+    pivot.position.lerp(pivotPosition, 1 - Math.exp(-camFollowMult * delta));
     state.camera.lookAt(pivot.position);
 
     /**
      * Ray casting detect if on ground
      */
     rayOrigin.addVectors(currentPos, rayOriginOffest);
-    const rayCast = new rapier.Ray(rayOrigin, rayDir);
-    const rayHit = world.castRay(
+    rayHit = world.castRay(
       rayCast,
       rayLength,
       true,
@@ -514,9 +510,11 @@ export default function Character() {
     );
 
     if (rayHit && rayHit.toi < floatingDis + 0.1) {
-      setCanJump(true);
+      if (slopeRayHit && actualSlopeAngle < 1) {
+        canJump = true;
+      }
     } else {
-      setCanJump(false);
+      canJump = false;
     }
 
     /**
@@ -531,7 +529,7 @@ export default function Character() {
         (rayHitObjectBodyType === 0 || rayHitObjectBodyType === 2) &&
         rayHitObjectBodyMass > 0.5
       ) {
-        setIsOnMovingObject(true);
+        isOnMovingObject = true;
         // Calculate distance between character and moving object
         distanceFromCharacterToObject
           .copy(currentPos)
@@ -555,7 +553,7 @@ export default function Character() {
             ).z
         );
       } else {
-        setIsOnMovingObject(false);
+        isOnMovingObject = false;
         movingObjectVelocity.set(0, 0, 0);
       }
     }
@@ -565,8 +563,7 @@ export default function Character() {
      */
     slopeRayOriginRef.current.getWorldPosition(slopeRayorigin);
     slopeRayorigin.y = rayOrigin.y;
-    const slopeRayCast = new rapier.Ray(slopeRayorigin, slopeRayDir);
-    const slopeRayHit = world.castRay(
+    slopeRayHit = world.castRay(
       slopeRayCast,
       slopeRayLength,
       true,
@@ -576,34 +573,34 @@ export default function Character() {
     );
 
     // Calculate slope angle
+    if (slopeRayHit) {
+      actualSlopeNormal = slopeRayHit.collider.castRayAndGetNormal(
+        slopeRayCast,
+        slopeRayLength
+      )?.normal;
+      actualSlopeNormalVec?.set(
+        actualSlopeNormal.x,
+        actualSlopeNormal.y,
+        actualSlopeNormal.z
+      );
+      actualSlopeAngle = actualSlopeNormalVec?.angleTo(floorNormal);
+    }
     if (slopeRayHit && rayHit && slopeRayHit.toi < floatingDis + 0.5) {
       if (canJump) {
         slopeAngle = Math.atan(
           (rayHit.toi - slopeRayHit.toi) / slopeRayOriginOffest
         ).toFixed(2);
-        actualSlopeNormal = slopeRayHit.collider.castRayAndGetNormal(
-          slopeRayCast,
-          floatingDis + 0.5
-        ).normal;
-        actualSlopeNormalVec.set(
-          actualSlopeNormal.x,
-          actualSlopeNormal.y,
-          actualSlopeNormal.z
-        );
-        actualSlopeAngle = actualSlopeNormalVec.angleTo(floorNormal);
-        // console.log(actualSlopeNormalVec);
-      } else {
-        slopeAngle = null;
       }
+    } else {
+      slopeAngle = null;
     }
 
     /**
      * Apply floating force
      */
-    if (rayHit && !jump && canJump) {
-      if (rayHit != null) {
-        // console.log(rayHit.collider.castRayAndGetNormal(rayCast,rayLength,true).normal);
-        const floatingForce =
+    if (rayHit != null) {
+      if (!jump && canJump) {
+        floatingForce =
           springK * (floatingDis - rayHit.toi) -
           characterRef.current.linvel().y * dampingC;
         characterRef.current.applyImpulse(
@@ -613,7 +610,8 @@ export default function Character() {
         // Apply opposite force to standing object
         characterMassForce.set(
           0,
-          -characterRef.current.mass() * characterRef.current.gravityScale()/10,
+          (-characterRef.current.mass() * characterRef.current.gravityScale()) /
+            10,
           0
         );
         rayHit.collider
@@ -664,6 +662,11 @@ export default function Character() {
     if (autoBalance) {
       autoBalanceCharacter();
     }
+
+    /**
+     * Camera collision detect
+     */
+    cameraCollisionDetect(characterRef.current, delta);
   });
 
   return (

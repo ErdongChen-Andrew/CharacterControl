@@ -14,7 +14,7 @@ export default function ShotCube() {
   const clickToCreateBox = () => {
     camera.parent.getWorldPosition(position);
     const newMesh = (
-      <mesh position={[position.x, position.y, position.z]} receiveShadow>
+      <mesh position={[position.x, position.y - 0.5, position.z]} receiveShadow>
         <boxGeometry args={[0.5, 0.5, 0.5]} />
         <meshStandardMaterial color="orange" />
       </mesh>
@@ -28,7 +28,7 @@ export default function ShotCube() {
       cubeRef.current.setLinvel(
         new THREE.Vector3(
           direction.x * 20,
-          direction.y * 20 - 3,
+          direction.y * 20 + 2,
           direction.z * 20
         )
       );

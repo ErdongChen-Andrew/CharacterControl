@@ -13,7 +13,16 @@ Simple web based character controller build on [react-three-fiber](https://githu
 
 ## New Features
 
-Character Auto Balance (2023-07-27)
+(2023-08-10) Camera Enhancement: 
+    1. Collision detection 
+    2. Zoom in/out capability 
+    3. Expanded movement range 
+    4. Improved tracking smoothness
+
+(2023-07-27) Character Auto Balance:
+    1. Character tilts forward/backward while in motion
+    2. Automatically returns to upright position after a hit or attack
+    3. Stability customization: Users can fine-tune the balance sensitivity to match their gameplay style
 
 ## Project Link
 

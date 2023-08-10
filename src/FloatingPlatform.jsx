@@ -19,12 +19,16 @@ export default function FloatingPlatform() {
   const rayDir = { x: 0, y: -1, z: 0 };
   const springDirVec = useMemo(() => new THREE.Vector3());
   const origin = useMemo(() => new THREE.Vector3());
+  const rayCast = new rapier.Ray(origin, rayDir);
+  let rayHit = null;
   const floatingDis = 0.8;
   const springK = 2.5;
   const dampingC = 0.15;
   // Platform 2
   const springDirVec2 = useMemo(() => new THREE.Vector3());
   const origin2 = useMemo(() => new THREE.Vector3());
+  const rayCast2 = new rapier.Ray(origin2, rayDir);
+  let rayHit2 = null;
 
   useEffect(() => {
     // Loack platform 1 rotation
@@ -47,8 +51,7 @@ export default function FloatingPlatform() {
       floatingPlateRef.current.translation().y,
       floatingPlateRef.current.translation().z
     );
-    const rayCast = new rapier.Ray(origin, rayDir);
-    const rayHit = world.castRay(
+    rayHit = world.castRay(
       rayCast,
       rayLength,
       true,
@@ -63,8 +66,7 @@ export default function FloatingPlatform() {
       floatingPlateRef2.current.translation().y,
       floatingPlateRef2.current.translation().z
     );
-    const rayCast2 = new rapier.Ray(origin2, rayDir);
-    const rayHit2 = world.castRay(
+    rayHit2 = world.castRay(
       rayCast2,
       rayLength,
       true,
