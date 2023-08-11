@@ -47,10 +47,8 @@ npm run build
 
 As I continue to improve and expand the Floating Capsule Character Controller, here are some next steps I am considering:
 
-1. Better handling of slope and stairs movement
-2. Implementing camera collision to prevent clipping
-3. Adding a dust effect triggered by character movement or jumps
-4. Developing a character animation state machine for seamless animation transitions
+1. Adding a dust effect triggered by character movement or jumps
+2. Developing a character animation state machine for seamless animation transitions
 
 ## Contributions
 
