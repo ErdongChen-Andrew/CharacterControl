@@ -590,6 +590,8 @@ export default function Character() {
         slopeAngle = Math.atan(
           (rayHit.toi - slopeRayHit.toi) / slopeRayOriginOffest
         ).toFixed(2);
+      } else {
+        slopeAngle = null;
       }
     } else {
       slopeAngle = null;
