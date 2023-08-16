@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var e=require("three-stdlib"),r=require("@react-three/fiber");function a(a){return r.useLoader(e.FBXLoader,a)}a.preload=a=>r.useLoader.preload(e.FBXLoader,a),a.clear=a=>r.useLoader.clear(e.FBXLoader,a),exports.useFBX=a;

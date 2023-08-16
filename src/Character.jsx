@@ -34,7 +34,7 @@ export default function Character() {
       step: 0.01,
     },
     turnVelMultiplier: {
-      value: 0.8,
+      value: 0.2,
       min: 0,
       max: 1,
       step: 0.01,
@@ -64,7 +64,7 @@ export default function Character() {
       step: 0.01,
     },
     airDragMultiplier: {
-      value: 0.01,
+      value: 0.2,
       min: 0,
       max: 1,
       step: 0.01,

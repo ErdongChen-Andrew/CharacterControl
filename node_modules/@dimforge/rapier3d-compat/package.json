@@ -1,0 +1,28 @@
+{
+  "name": "@dimforge/rapier3d-compat",
+  "collaborators": [
+    "Sébastien Crozet <developer@crozet.re>"
+  ],
+  "description": "3-dimensional physics engine in Rust - official JS bindings. Compatibility package with inlined webassembly as base64.",
+  "version": "0.11.2",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dimforge/rapier.js"
+  },
+  "files": [
+    "*"
+  ],
+  "module": "rapier.es.js",
+  "homepage": "https://rapier.rs",
+  "types": "rapier.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "physics",
+    "dynamics",
+    "rigid",
+    "real-time",
+    "joints"
+  ],
+  "main": "rapier.cjs.js"
+}

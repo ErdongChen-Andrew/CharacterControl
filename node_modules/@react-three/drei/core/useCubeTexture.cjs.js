@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var e=require("three"),r=require("@react-three/fiber");function t(t,{path:u}){const[a]=r.useLoader(e.CubeTextureLoader,[t],(e=>e.setPath(u)));return a}t.preload=(t,{path:u})=>r.useLoader.preload(e.CubeTextureLoader,[t],(e=>e.setPath(u))),exports.useCubeTexture=t;

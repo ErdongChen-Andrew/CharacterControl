@@ -1,0 +1,37 @@
+import * as THREE from 'three';
+import * as React from 'react';
+import { Size } from '@react-three/fiber';
+import { OnDragStartProps } from './context';
+export declare const calculateScaleFactor: (point3: THREE.Vector3, radiusPx: number, camera: THREE.Camera, size: Size) => number;
+declare type PivotControlsProps = {
+    scale?: number;
+    lineWidth?: number;
+    fixed?: boolean;
+    offset?: [number, number, number];
+    rotation?: [number, number, number];
+    matrix?: THREE.Matrix4;
+    anchor?: [number, number, number];
+    autoTransform?: boolean;
+    activeAxes?: [boolean, boolean, boolean];
+    disableAxes?: boolean;
+    disableSliders?: boolean;
+    disableRotations?: boolean;
+    translationLimits?: [[number, number] | undefined, [number, number] | undefined, [number, number] | undefined];
+    rotationLimits?: [[number, number] | undefined, [number, number] | undefined, [number, number] | undefined];
+    axisColors?: [string | number, string | number, string | number];
+    hoveredColor?: string | number;
+    annotations?: boolean;
+    annotationsClass?: string;
+    onDragStart?: (props: OnDragStartProps) => void;
+    onDrag?: (l: THREE.Matrix4, deltaL: THREE.Matrix4, w: THREE.Matrix4, deltaW: THREE.Matrix4) => void;
+    onDragEnd?: () => void;
+    depthTest?: boolean;
+    opacity?: number;
+    visible?: boolean;
+    userData?: {
+        [key: string]: any;
+    };
+    children?: React.ReactNode;
+};
+export declare const PivotControls: React.ForwardRefExoticComponent<PivotControlsProps & React.RefAttributes<THREE.Group>>;
+export {};
