@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var e=require("three-stdlib"),r=require("suspend-react");let t=null;async function n(r){t||(t=new e.FontLoader);let n="string"==typeof r?await(await fetch(r)).json():r;return t.parse(n)}function s(e){return r.suspend(n,[e])}s.preload=e=>r.preload(n,[e]),s.clear=e=>r.clear([e]),exports.useFont=s;
