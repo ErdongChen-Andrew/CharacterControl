@@ -1,5 +1,5 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import useGame from "./stores/useGame";
 
@@ -75,7 +75,7 @@ export default function CharacterModel(props) {
   }, [curAnimation]);
 
   return (
-    <>
+    <Suspense fallback={<capsuleGeometry args={[0.3, 0.7]} />}>
       <primitive
         object={character.scene}
         scale={0.45}
@@ -90,6 +90,6 @@ export default function CharacterModel(props) {
         <boxGeometry args={[0.5, 0.2, 0.3]} />
         <meshStandardMaterial color="mediumpurple" />
       </mesh> */}
-    </>
+    </Suspense>
   );
 }
