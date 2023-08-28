@@ -13,13 +13,23 @@ Simple web based character controller build on [react-three-fiber](https://githu
 
 ## New Features
 
+### (2023-08-28) Character Animations:
+
+- Incorporate 8 built-in dynamic animations (including 3 for jump actions)
+- Flexibility to add and personalize additional animations
+- Fine-tune slope angle's impact on jump direction (fully customizable)
+- Tailor the rejection velocity for sudden changes in movement direction (fully customizable)
+  [![screenshot](example/CharacterAnimation.png)](https://github.com/erdongchen-andrew/CharacterControl/tree/main/example)
+
 ### (2023-08-10) Camera Enhancement:
-- Collision detection 
-- Zoom in/out capability 
-- Expanded movement range 
+
+- Collision detection
+- Zoom in/out capability
+- Expanded movement range
 - Improved tracking smoothness
 
 ### (2023-07-27) Character Auto Balance:
+
 - Character tilts forward/backward while in motion
 - Automatically returns to upright position after a hit or attack
 - Stability customization: Users can fine-tune the balance sensitivity to match their gameplay style
@@ -43,15 +53,136 @@ npm run dev
 npm run build
 ```
 
-## Next Steps
+## How To Use
 
-As I continue to improve and expand the Floating Capsule Character Controller, here are some next steps I am considering:
+### Basic Controls
 
-1. Adding a dust effect triggered by character movement or jumps
-2. Developing a character animation state machine for seamless animation transitions
+To get started, set up your keyboard map using [KeyboardControls](https://github.com/pmndrs/drei#keyboardcontrols). Then, replace `<CharacterModel>` with `<YourModel>` inside `Experience.jsx`:
+
+```js
+/**
+ * Keyboard control preset
+ */
+const keyboardMap = [
+  { name: "forward", keys: ["ArrowUp", "KeyW"] },
+  { name: "backward", keys: ["ArrowDown", "KeyS"] },
+  { name: "leftward", keys: ["ArrowLeft", "KeyA"] },
+  { name: "rightward", keys: ["ArrowRight", "KeyD"] },
+  { name: "jump", keys: ["Space"] },
+  { name: "run", keys: ["Shift"] },
+  { name: "triggle", keys: ["KeyF"] },
+];
+
+return (
+  <>
+    ...
+    <Physics debug={physics} timeStep="vary">
+      {/* Keyboard preset */}
+      <KeyboardControls map={keyboardMap}>
+        {/* Character Control */}
+        <CharacterController>
+          {/* Replace your model here */}
+          <CharacterModel />
+        </CharacterController>
+      </KeyboardControls>
+      ...
+    </Physics>
+  </>
+);
+```
+
+### Modifiy Character Animations
+
+If you want use your own character animations, customize the `animationSet` in `CharacterModel.jsx` with your animation names. Also, make sure to adjust the `useGLTF` src to your model:
+
+```js
+// Change the character src to yours
+  const character = useGLTF("./Animated Platformer Character.glb");
+  ...
+// Rename your character animations here
+  const animationSet = {
+    idle: "CharacterArmature|Idle",
+    walk: "CharacterArmature|Walk",
+    run: "CharacterArmature|Run",
+    jump: "CharacterArmature|Jump",
+    jumpIdle: "CharacterArmature|Jump_Idle",
+    jumpLand: "CharacterArmature|Jump_Land",
+    duck: "CharacterArmature|Duck", // This is for falling from high sky
+    wave: "CharacterArmature|Wave",
+  };
+```
+
+### (Advanced) Add and Personalize Additional Animations
+
+For advanced animation setups, follow these steps:
+
+1. In `CharacterModel.jsx`, expand the `animationSet` with additional animations:
+
+```js
+// Rename your character animations here
+const animationSet = {
+  idle: "CharacterArmature|Idle",
+  walk: "CharacterArmature|Walk",
+  run: "CharacterArmature|Run",
+  jump: "CharacterArmature|Jump",
+  jumpIdle: "CharacterArmature|Jump_Idle",
+  jumpLand: "CharacterArmature|Jump_Land",
+  duck: "CharacterArmature|Duck",
+  wave: "CharacterArmature|Wave",
+  //additinalAnimation: "additinalAnimationName",
+};
+```
+
+2. In `useGame.jsx`, create a trigger function for the new animation:
+
+```js
+  return {
+      /**
+       * Character animations state manegement
+       */
+      // Initial animation
+      curAnimation: null,
+      animationSet: {},
+
+      ...
+
+      wave: () => {
+        set((state) => {
+          if (state.curAnimation === state.animationSet.idle) {
+            return { curAnimation: state.animationSet.wave };
+          }
+          return {};
+        });
+      },
+
+      /**
+       * Additional animations
+       */
+      // triggleFunction: ()=>{
+      //    set((state) => {
+      //        return { curAnimation: state.animationSet.additionalAnimation };
+      //    });
+      // }
+    };
+```
+
+3. In `CharacterController.jsx`, initialize the trigger function and call it when needed:
+
+```js
+// Animation change functions
+const idleAnimation = useGame((state) => state.idle);
+const walkAnimation = useGame((state) => state.walk);
+const runAnimation = useGame((state) => state.run);
+const jumpAnimation = useGame((state) => state.jump);
+const jumpIdleAnimation = useGame((state) => state.jumpIdle);
+const jumpLandAnimation = useGame((state) => state.jumpLand);
+const duckAnimation = useGame((state) => state.duck);
+const waveAnimation = useGame((state) => state.wave);
+//const additionalAnimation = useGame((state) => state.triggleFunction);
+```
 
 ## Contributions
 
-I appreciate your interest in this project! If you have any feedback, suggestions, or resources related to the controller or the next steps, please feel free to share. 
+I appreciate your interest in this project! If you have any feedback, suggestions, or resources related to the controller, please feel free to share.
 
 Thank you!

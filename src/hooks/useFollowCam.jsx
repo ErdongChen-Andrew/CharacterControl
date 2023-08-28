@@ -3,19 +3,21 @@ import { useRapier } from "@react-three/rapier";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 
-export default function useFollowCam() {
+export default function useFollowCam(props) {
   const { scene, camera } = useThree();
   const { rapier, world } = useRapier();
 
+  let originZDis = props.camInitDis;
+  const camMaxDis = props.camMaxDis;
+  const camMinDis = props.camMinDis;
   const pivot = useMemo(() => new THREE.Object3D(), []);
   const followCam = useMemo(() => {
-    const o = new THREE.Object3D();
-    o.position.set(0, 0, -5);
-    return o;
+    const origin = new THREE.Object3D();
+    origin.position.set(0, 0, originZDis);
+    return origin;
   }, []);
 
   /** Camera collison detect setups */
-  let originZDis = -5;
   let smallestDistance = null;
   let cameraDistance = null;
   const cameraRayDir = useMemo(() => new THREE.Vector3());
@@ -49,8 +51,8 @@ export default function useFollowCam() {
       const vz = originZDis + e.deltaY * 0.002;
       const vy = followCam.rotation.x + e.movementY * 0.002;
 
-      if (vz >= -7 && vz <= -0.5) {
-        originZDis = vz
+      if (vz >= camMaxDis && vz <= camMinDis) {
+        originZDis = vz;
         followCam.position.z = originZDis * Math.cos(-vy);
         followCam.position.y = originZDis * Math.sin(-vy);
       }
@@ -87,17 +89,16 @@ export default function useFollowCam() {
   };
 
   useEffect(() => {
-    // camera.position.set(0, 1, 0)
     followCam.add(camera);
     pivot.add(followCam);
-    // scene.add(pivot)
+
     document.addEventListener("mousemove", onDocumentMouseMove);
     document.addEventListener("mousewheel", onDocumentMouseWheel);
     return () => {
       document.removeEventListener("mousemove", onDocumentMouseMove);
       document.removeEventListener("mousewheel", onDocumentMouseWheel);
     };
-  });
+  }, []);
 
   return { pivot, followCam, cameraCollisionDetect };
 }

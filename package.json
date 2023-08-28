@@ -1,5 +1,5 @@
 {
-  "name": "threejs-journey-exercise",
+  "name": "character-contrller",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -19,6 +19,7 @@
     "r3f-perf": "^6.7.0",
     "react": "18.2",
     "react-dom": "18.2",
-    "three": "^0.153.0"
+    "three": "^0.153.0",
+    "zustand": "^4.4.1"
   }
 }

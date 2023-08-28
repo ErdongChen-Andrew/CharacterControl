@@ -1,15 +1,25 @@
 import { useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, CapsuleCollider, useRapier } from "@react-three/rapier";
-import { useEffect } from "react";
-import { useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useControls } from "leva";
 import useFollowCam from "./hooks/useFollowCam";
+import useGame from "./stores/useGame";
 
-export default function Character() {
+export default function CharacterController(props) {
   const characterRef = useRef();
   const characterModelRef = useRef();
+
+  // Animation change functions
+  const idleAnimation = useGame((state) => state.idle);
+  const walkAnimation = useGame((state) => state.walk);
+  const runAnimation = useGame((state) => state.run);
+  const jumpAnimation = useGame((state) => state.jump);
+  const jumpIdleAnimation = useGame((state) => state.jumpIdle);
+  const jumpLandAnimation = useGame((state) => state.jumpLand);
+  const duckAnimation = useGame((state) => state.duck);
+  const waveAnimation = useGame((state) => state.wave);
 
   /**
    * Debug settings
@@ -20,177 +30,209 @@ export default function Character() {
     turnSpeed,
     sprintMult,
     jumpVel,
+    slopJumpMult,
     sprintJumpMult,
     airDragMultiplier,
     dragDampingC,
     accDeltaTime,
+    rejectVelMult,
     moveImpulsePointY,
     camFollowMult,
-  } = useControls("Character controls", {
-    maxVelLimit: {
-      value: 5,
-      min: 0,
-      max: 10,
-      step: 0.01,
-    },
-    turnVelMultiplier: {
-      value: 0.2,
-      min: 0,
-      max: 1,
-      step: 0.01,
-    },
-    turnSpeed: {
-      value: 20,
-      min: 5,
-      max: 30,
-      step: 0.1,
-    },
-    sprintMult: {
-      value: 1.5,
-      min: 1,
-      max: 3,
-      step: 0.01,
-    },
-    jumpVel: {
-      value: 4,
-      min: 0,
-      max: 10,
-      step: 0.01,
-    },
-    sprintJumpMult: {
-      value: 1.2,
-      min: 1,
-      max: 3,
-      step: 0.01,
-    },
-    airDragMultiplier: {
-      value: 0.2,
-      min: 0,
-      max: 1,
-      step: 0.01,
-    },
-    dragDampingC: {
-      value: 0.05,
-      min: 0,
-      max: 0.5,
-      step: 0.01,
-    },
-    accDeltaTime: {
-      value: 8,
-      min: 0,
-      max: 50,
-      step: 1,
-    },
-    moveImpulsePointY: {
-      value: 0.5,
-      min: 0,
-      max: 3,
-      step: 0.1,
-    },
-    camFollowMult: {
-      value: 11,
-      min: 0,
-      max: 15,
-      step: 0.1,
-    },
-  });
-
-  const { rayOriginOffest, rayLength, rayDir, floatingDis, springK, dampingC } =
-    useControls("Floating Ray", {
-      rayOriginOffest: {
-        x: 0,
-        y: -0.35,
-        z: 0,
-      },
-      rayLength: {
-        value: 2,
+  } = useControls(
+    "Character Controls",
+    {
+      maxVelLimit: {
+        value: 2.5,
         min: 0,
         max: 10,
         step: 0.01,
       },
-      rayDir: { x: 0, y: -1, z: 0 },
-      floatingDis: {
-        value: 0.6,
+      turnVelMultiplier: {
+        value: 0.2,
         min: 0,
-        max: 2,
+        max: 1,
         step: 0.01,
       },
-      springK: {
-        value: 1.5,
-        min: 0,
+      turnSpeed: {
+        value: 15,
+        min: 5,
+        max: 30,
+        step: 0.1,
+      },
+      sprintMult: {
+        value: 2,
+        min: 1,
         max: 5,
         step: 0.01,
       },
-      dampingC: {
-        value: 0.2,
+      jumpVel: {
+        value: 4,
         min: 0,
+        max: 10,
+        step: 0.01,
+      },
+      slopJumpMult: {
+        value: 0.25,
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+      sprintJumpMult: {
+        value: 1.2,
+        min: 1,
         max: 3,
         step: 0.01,
       },
-    });
+      airDragMultiplier: {
+        value: 0.2,
+        min: 0,
+        max: 1,
+        step: 0.01,
+      },
+      dragDampingC: {
+        value: 0.15,
+        min: 0,
+        max: 0.5,
+        step: 0.01,
+      },
+      accDeltaTime: {
+        value: 8,
+        min: 0,
+        max: 50,
+        step: 1,
+      },
+      rejectVelMult: {
+        value: 4,
+        min: 0,
+        max: 10,
+        step: 0.1,
+      },
+      moveImpulsePointY: {
+        value: 0.5,
+        min: 0,
+        max: 3,
+        step: 0.1,
+      },
+      camFollowMult: {
+        value: 11,
+        min: 0,
+        max: 15,
+        step: 0.1,
+      },
+    },
+    { collapsed: true }
+  );
+
+  const { rayOriginOffest, rayLength, rayDir, floatingDis, springK, dampingC } =
+    useControls(
+      "Floating Ray",
+      {
+        rayOriginOffest: {
+          x: 0,
+          y: -0.35,
+          z: 0,
+        },
+        rayLength: {
+          value: 2,
+          min: 0,
+          max: 10,
+          step: 0.01,
+        },
+        rayDir: { x: 0, y: -1, z: 0 },
+        floatingDis: {
+          value: 0.6,
+          min: 0,
+          max: 2,
+          step: 0.01,
+        },
+        springK: {
+          value: 1.5,
+          min: 0,
+          max: 5,
+          step: 0.01,
+        },
+        dampingC: {
+          value: 0.1,
+          min: 0,
+          max: 3,
+          step: 0.01,
+        },
+      },
+      { collapsed: true }
+    );
 
   const {
+    showSlopeRayOrigin,
     slopeRayOriginOffest,
     slopeRayLength,
     slopeRayDir,
     slopeUpExtraForce,
     slopeDownExtraForce,
-  } = useControls("Slope Ray", {
-    slopeRayOriginOffest: {
-      value: 0.23,
-      min: 0,
-      max: 3,
-      step: 0.01,
+  } = useControls(
+    "Slope Ray",
+    {
+      showSlopeRayOrigin: false,
+      slopeRayOriginOffest: {
+        value: 0.23,
+        min: 0,
+        max: 3,
+        step: 0.01,
+      },
+      slopeRayLength: {
+        value: 2.5,
+        min: 0,
+        max: 10,
+        step: 0.01,
+      },
+      slopeRayDir: { x: 0, y: -1, z: 0 },
+      slopeUpExtraForce: {
+        value: 0.1,
+        min: 0,
+        max: 5,
+        step: 0.01,
+      },
+      slopeDownExtraForce: {
+        value: 0.2,
+        min: 0,
+        max: 5,
+        step: 0.01,
+      },
     },
-    slopeRayLength: {
-      value: 2.5,
-      min: 0,
-      max: 10,
-      step: 0.01,
-    },
-    slopeRayDir: { x: 0, y: -1, z: 0 },
-    slopeUpExtraForce: {
-      value: 1,
-      min: 0,
-      max: 5,
-      step: 0.01,
-    },
-    slopeDownExtraForce: {
-      value: 3,
-      min: 0,
-      max: 5,
-      step: 0.01,
-    },
-  });
+    { collapsed: true }
+  );
 
   const {
     autoBalance,
     autoBalanceSpringK,
     autoBalanceDampingC,
     autoBalanceDampingOnY,
-  } = useControls("autoBalance force", {
-    autoBalance: {
-      value: true,
+  } = useControls(
+    "AutoBalance Force",
+    {
+      autoBalance: {
+        value: true,
+      },
+      autoBalanceSpringK: {
+        value: 0.4,
+        min: 0,
+        max: 5,
+        step: 0.01,
+      },
+      autoBalanceDampingC: {
+        value: 0.025,
+        min: 0,
+        max: 0.1,
+        step: 0.001,
+      },
+      autoBalanceDampingOnY: {
+        value: 0.02,
+        min: 0,
+        max: 0.1,
+        step: 0.001,
+      },
     },
-    autoBalanceSpringK: {
-      value: 0.4,
-      min: 0,
-      max: 5,
-      step: 0.01,
-    },
-    autoBalanceDampingC: {
-      value: 0.025,
-      min: 0,
-      max: 0.1,
-      step: 0.001,
-    },
-    autoBalanceDampingOnY: {
-      value: 0.02,
-      min: 0,
-      max: 0.1,
-      step: 0.001,
-    },
-  });
+    { collapsed: true }
+  );
 
   /**
    * keyboard controls setup
@@ -209,26 +251,38 @@ export default function Character() {
   const objectAngvelToLinvel = useMemo(() => new THREE.Vector3());
 
   /**
-   * Initial setup
+   * Initial light setup
    */
   let dirLight = null;
 
   /**
+   * Follow camera initial setups from props
+   */
+  const cameraSetups = {
+    camInitDis: props.camInitDis ? props.camInitDis : -5,
+    camMaxDis: props.camMaxDis ? props.camMaxDis : -7,
+    camMinDis: props.camMinDis ? props.camMinDis : -0.5,
+  };
+
+  /**
    * Load camera pivot and character move preset
    */
-  const { pivot, followCam, cameraCollisionDetect } = useFollowCam();
+  const { pivot, followCam, cameraCollisionDetect } =
+    useFollowCam(cameraSetups);
   const pivotPosition = useMemo(() => new THREE.Vector3());
   const modelEuler = useMemo(() => new THREE.Euler(), []);
   const modelQuat = useMemo(() => new THREE.Quaternion(), []);
   const moveImpulse = useMemo(() => new THREE.Vector3());
   const movingDirection = useMemo(() => new THREE.Vector3());
   const moveAccNeeded = useMemo(() => new THREE.Vector3());
+  const jumpVelocityVec = useMemo(() => new THREE.Vector3());
   const jumpDirection = useMemo(() => new THREE.Vector3());
   const currentVel = useMemo(() => new THREE.Vector3());
   const currentPos = useMemo(() => new THREE.Vector3());
   const dragForce = useMemo(() => new THREE.Vector3());
   const dragAngForce = useMemo(() => new THREE.Vector3());
   const wantToMoveVel = useMemo(() => new THREE.Vector3());
+  const rejectVel = useMemo(() => new THREE.Vector3());
 
   /**
    * Floating Ray setup
@@ -239,6 +293,9 @@ export default function Character() {
   const rayOrigin = useMemo(() => new THREE.Vector3());
   const rayCast = new rapier.Ray(rayOrigin, rayDir);
   let rayHit = null;
+
+  /**Test shape ray */
+  // const shape = new rapier.Capsule(0.2,0.1)
 
   /**
    * Slope detection ray setup
@@ -289,36 +346,38 @@ export default function Character() {
       movingObjectVelocity.angleTo(movingDirection);
 
     /**
-     * Setup rejection velocity
+     * Setup rejection velocity, (currently only work on ground)
      */
-    // const wantToMoveMeg = currentVel.dot(movingDirection);
-    // wantToMoveVel.set(
-    //   movingDirection.x * wantToMoveMeg,
-    //   0,
-    //   movingDirection.z * wantToMoveMeg
-    // );
-    // const rejectVel = new THREE.Vector3().copy(currentVel).sub(wantToMoveVel);
-    // console.log(wantToMoveVel);
+    const wantToMoveMeg = currentVel.dot(movingDirection);
+    wantToMoveVel.set(
+      movingDirection.x * wantToMoveMeg,
+      0,
+      movingDirection.z * wantToMoveMeg
+    );
+    rejectVel.copy(currentVel).sub(wantToMoveVel);
 
     /**
      * Calculate required accelaration and force: a = Δv/Δt
      * If it's on a moving/rotating platform, apply platform velocity to Δv accordingly
+     * Also, apply reject velocity when character is moving opposite of it's moving direction
      */
     moveAccNeeded.set(
       (movingDirection.x *
-        (maxVelLimit + movingObjectVelocityInCharacterDir.x) *
-        (run ? sprintMult : 1) -
+        (maxVelLimit * (run ? sprintMult : 1) +
+          movingObjectVelocityInCharacterDir.x) -
         (currentVel.x -
           movingObjectVelocity.x *
-            Math.sin(angleBetweenCharacterDirAndObjectDir))) /
+            Math.sin(angleBetweenCharacterDirAndObjectDir) +
+          rejectVel.x * (isOnMovingObject ? 0 : rejectVelMult))) /
         accDeltaTime,
       0,
       (movingDirection.z *
-        (maxVelLimit + movingObjectVelocityInCharacterDir.z) *
-        (run ? sprintMult : 1) -
+        (maxVelLimit * (run ? sprintMult : 1) +
+          movingObjectVelocityInCharacterDir.z) -
         (currentVel.z -
           movingObjectVelocity.z *
-            Math.sin(angleBetweenCharacterDirAndObjectDir))) /
+            Math.sin(angleBetweenCharacterDirAndObjectDir) +
+          rejectVel.z * (isOnMovingObject ? 0 : rejectVelMult))) /
         accDeltaTime
     );
 
@@ -340,7 +399,6 @@ export default function Character() {
         moveForceNeeded.x *
           turnVelMultiplier *
           (canJump ? 1 : airDragMultiplier), // if it's in the air, give it less control
-        // -rejectVel.x * dragDampingC,
         slopeAngle === null || slopeAngle == 0 // if it's on a slope, apply extra up/down force to the body
           ? 0
           : movingDirection.y *
@@ -352,14 +410,12 @@ export default function Character() {
         moveForceNeeded.z *
           turnVelMultiplier *
           (canJump ? 1 : airDragMultiplier) // if it's in the air, give it less control
-        // -rejectVel.z * dragDampingC
       );
     }
     // If character complete turning, change the impulse quaternion default
     else {
       moveImpulse.set(
         moveForceNeeded.x * (canJump ? 1 : airDragMultiplier),
-        // -rejectVel.x * dragDampingC,
         slopeAngle === null || slopeAngle == 0 // if it's on a slope, apply extra up/down force to the body
           ? 0
           : movingDirection.y *
@@ -368,7 +424,6 @@ export default function Character() {
                 : slopeDownExtraForce) *
               (run ? sprintMult : 1),
         moveForceNeeded.z * (canJump ? 1 : airDragMultiplier)
-        // -rejectVel.z * dragDampingC
       );
     }
 
@@ -404,6 +459,18 @@ export default function Character() {
     dirLight = characterModelRef.current.parent.parent.children.find((item) => {
       return item.type === "DirectionalLight";
     });
+
+    // Animation subscribe
+    const unSubscribeAnimation = useGame.subscribe(
+      (state) => state.curAnimation,
+      (value) => {
+        console.log(value);
+      }
+    );
+
+    return () => {
+      unSubscribeAnimation();
+    };
   });
 
   useEffect(() => {
@@ -432,7 +499,8 @@ export default function Character() {
     /**
      * Getting all the useful keys from useKeyboardControls
      */
-    const { forward, backward, leftward, rightward, jump, run } = getKeys();
+    const { forward, backward, leftward, rightward, jump, run, triggle } =
+      getKeys();
 
     // Getting moving directions
     if (forward) {
@@ -472,12 +540,17 @@ export default function Character() {
     // Jump impulse
     if (jump && canJump) {
       // characterRef.current.applyImpulse(jumpDirection.set(0, 0.5, 0), true);
+      jumpVelocityVec.set(
+        currentVel.x,
+        run ? sprintJumpMult * jumpVel : jumpVel,
+        currentVel.z
+      );
+      // Apply slope normal to jump direction
       characterRef.current.setLinvel(
-        {
-          x: currentVel.x,
-          y: run ? sprintJumpMult * jumpVel : jumpVel,
-          z: currentVel.z,
-        },
+        jumpDirection
+          .set(0, (run ? sprintJumpMult * jumpVel : jumpVel) * slopJumpMult, 0)
+          .projectOnVector(actualSlopeNormalVec)
+          .add(jumpVelocityVec),
         true
       );
     }
@@ -508,6 +581,18 @@ export default function Character() {
       null,
       characterRef.current
     );
+    /**Test shape ray */
+    // rayHit = world.castShape(
+    //   currentPos,
+    //   { w: 0, x: 0, y: 0, z: 0 },
+    //   {x:0,y:-1,z:0},
+    //   shape,
+    //   rayLength,
+    //   true,
+    //   null,
+    //   null,
+    //   characterRef.current
+    // );
 
     if (rayHit && rayHit.toi < floatingDis + 0.1) {
       if (slopeRayHit && actualSlopeAngle < 1) {
@@ -601,7 +686,7 @@ export default function Character() {
      * Apply floating force
      */
     if (rayHit != null) {
-      if (!jump && canJump) {
+      if (canJump) {
         floatingForce =
           springK * (floatingDis - rayHit.toi) -
           characterRef.current.linvel().y * dampingC;
@@ -613,7 +698,7 @@ export default function Character() {
         characterMassForce.set(
           0,
           (-characterRef.current.mass() * characterRef.current.gravityScale()) /
-            10,
+            3,
           0
         );
         rayHit.collider
@@ -625,37 +710,25 @@ export default function Character() {
     /**
      * Apply drag force if it's not moving
      */
-    // not on a moving object
-    if (
-      !forward &&
-      !backward &&
-      !leftward &&
-      !rightward &&
-      canJump &&
-      !isOnMovingObject
-    ) {
-      dragForce.set(
-        -currentVel.x * dragDampingC,
-        0,
-        -currentVel.z * dragDampingC
-      );
-      characterRef.current.applyImpulse(dragForce);
-    }
-    // on a moving object
-    else if (
-      !forward &&
-      !backward &&
-      !leftward &&
-      !rightward &&
-      canJump &&
-      isOnMovingObject
-    ) {
-      dragForce.set(
-        (movingObjectVelocity.x - currentVel.x) * dragDampingC * 2,
-        0,
-        (movingObjectVelocity.z - currentVel.z) * dragDampingC * 2
-      );
-      characterRef.current.applyImpulse(dragForce, true);
+    if (!forward && !backward && !leftward && !rightward && canJump) {
+      // not on a moving object
+      if (!isOnMovingObject) {
+        dragForce.set(
+          -currentVel.x * dragDampingC,
+          0,
+          -currentVel.z * dragDampingC
+        );
+        characterRef.current.applyImpulse(dragForce);
+      }
+      // on a moving object
+      else {
+        dragForce.set(
+          (movingObjectVelocity.x - currentVel.x) * dragDampingC * 2,
+          0,
+          (movingObjectVelocity.z - currentVel.z) * dragDampingC * 2
+        );
+        characterRef.current.applyImpulse(dragForce, true);
+      }
     }
 
     /**
@@ -669,6 +742,28 @@ export default function Character() {
      * Camera collision detect
      */
     cameraCollisionDetect(characterRef.current, delta);
+
+    /**
+     * Apply all the animations
+     */
+    if (!forward && !backward && !leftward && !rightward && !jump && canJump) {
+      idleAnimation();
+    } else if (jump && canJump) {
+      jumpAnimation();
+    } else if (canJump && (forward || backward || leftward || rightward)) {
+      run ? runAnimation() : walkAnimation();
+    } else if (!canJump) {
+      jumpIdleAnimation();
+    }
+    // On high sky, play falling animation
+    if (rayHit == null) {
+      duckAnimation();
+    }
+
+    // Specitial triggle animation
+    if (triggle) {
+      waveAnimation();
+    }
   });
 
   return (
@@ -676,6 +771,7 @@ export default function Character() {
       colliders={false}
       position={[0, 3, 0]}
       friction={-0.5}
+      gravityScale={1.2}
       ref={characterRef}
     >
       <CapsuleCollider args={[0.35, 0.3]} />
@@ -687,17 +783,13 @@ export default function Character() {
             rayOriginOffest.z + slopeRayOriginOffest,
           ]}
           ref={slopeRayOriginRef}
+          visible={showSlopeRayOrigin}
         >
+          {/* This is used for positioning the slope ray origin */}
           <boxGeometry args={[0.15, 0.15, 0.15]} />
         </mesh>
-        <mesh castShadow>
-          <capsuleGeometry args={[0.3, 0.7]} />
-          <meshStandardMaterial color="mediumpurple" />
-        </mesh>
-        <mesh castShadow position={[0, 0.2, 0.2]}>
-          <boxGeometry args={[0.5, 0.2, 0.3]} />
-          <meshStandardMaterial color="mediumpurple" />
-        </mesh>
+        {/* Character model */}
+        {props.children}
       </group>
     </RigidBody>
   );

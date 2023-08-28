@@ -16,7 +16,7 @@ export default function RigidObjects() {
         >
           mass: 1
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[1, 1, 1]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>
@@ -32,7 +32,7 @@ export default function RigidObjects() {
         >
           mass: 3.375
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[1.5, 1.5, 1.5]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>
@@ -48,7 +48,7 @@ export default function RigidObjects() {
         >
           mass: 8
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[2, 2, 2]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>
@@ -68,7 +68,7 @@ export default function RigidObjects() {
         </Text>
         <CylinderCollider args={[0.03, 2.5]} position={[0, 0.25, 0]} />
         <BallCollider args={[0.25]} />
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <cylinderGeometry args={[2.5, 0.2, 0.5]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>

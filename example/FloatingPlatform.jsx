@@ -119,7 +119,7 @@ export default function FloatingPlatform() {
         >
           Floating Platform push to move
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>
@@ -136,7 +136,7 @@ export default function FloatingPlatform() {
         >
           Floating Platform push to rotate
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>

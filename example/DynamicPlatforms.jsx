@@ -6,6 +6,7 @@ import * as THREE from "three";
 
 export default function DynamicPlatforms() {
   const sideMovePlatformRef = useRef();
+  const verticalMovePlatformRef = useRef();
   const rotatePlatformRef = useRef();
   const rotationDrumRef = useRef();
 
@@ -25,6 +26,16 @@ export default function DynamicPlatforms() {
       y: -0.5,
       z: -10,
     });
+
+    // Elevate platform
+    verticalMovePlatformRef.current.setNextKinematicTranslation({
+      x: -25,
+      y: 2 * Math.sin(time / 2) + 2,
+      z: 0,
+    });
+    verticalMovePlatformRef.current.setNextKinematicRotation(
+      quaternionRotation.setFromAxisAngle(yRotationAxies, time * 0.5)
+    );
 
     // Rotate platform
     rotatePlatformRef.current.setNextKinematicRotation(
@@ -50,7 +61,25 @@ export default function DynamicPlatforms() {
         >
           Kinematic Moving Platform
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[5, 0.2, 5]} />
+          <meshStandardMaterial color={"moccasin"} />
+        </mesh>
+      </RigidBody>
+
+      {/* Elevating platform */}
+      <RigidBody type="kinematicPosition" ref={verticalMovePlatformRef}>
+        <Text
+          scale={0.5}
+          color="black"
+          maxWidth={10}
+          textAlign="center"
+          position={[0, 2.5, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+        >
+          Kinematic Elevating Platform
+        </Text>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"moccasin"} />
         </mesh>
@@ -71,7 +100,7 @@ export default function DynamicPlatforms() {
         >
           Kinematic Rotating Platform
         </Text>
-        <mesh receiveShadow>
+        <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"moccasin"} />
         </mesh>

@@ -1,24 +1,25 @@
-import { Grid, KeyboardControls, OrbitControls } from "@react-three/drei";
+import { Grid, KeyboardControls } from "@react-three/drei";
 import { Perf } from "r3f-perf";
 import { Physics } from "@react-three/rapier";
-import Character from "./Character.jsx";
-import Floor from "./Floor.jsx";
-import Lights from "./Lights.jsx";
-import Steps from "./Steps.jsx";
-import Slopes from "./Slopes.jsx";
-import RoughPlane from "./RoughPlane.jsx";
-import RigidObjects from "./RigidObjects.jsx";
-import FloatingPlatform from "./FloatingPlatform.jsx";
-import DynamicPlatforms from "./DynamicPlatforms.jsx";
-import ShotCube from "./ShotCube";
+import CharacterController from "./CharacterController.jsx";
+import Floor from "../example/Floor.jsx";
+import Lights from "../example/Lights.jsx";
+import Steps from "../example/Steps.jsx";
+import Slopes from "../example/Slopes.jsx";
+import RoughPlane from "../example/RoughPlane.jsx";
+import RigidObjects from "../example/RigidObjects.jsx";
+import FloatingPlatform from "../example/FloatingPlatform.jsx";
+import DynamicPlatforms from "../example/DynamicPlatforms.jsx";
+import ShotCube from "../example/ShotCube";
 import { useControls } from "leva";
+import CharacterModel from "./CharacterModel.jsx";
 
 export default function Experience() {
   /**
    * Debug settings
    */
   const { physics } = useControls("World Settings", {
-    physics: true,
+    physics: false,
   });
 
   /**
@@ -31,12 +32,11 @@ export default function Experience() {
     { name: "rightward", keys: ["ArrowRight", "KeyD"] },
     { name: "jump", keys: ["Space"] },
     { name: "run", keys: ["Shift"] },
+    { name: "triggle", keys: ["KeyF"] },
   ];
 
   return (
     <>
-      {/* <OrbitControls makeDefault /> */}
-
       <Perf position="top-left" />
 
       <Grid
@@ -49,9 +49,13 @@ export default function Experience() {
       <Lights />
 
       <Physics debug={physics} timeStep="vary">
-        {/* Character */}
+        {/* Keyboard preset */}
         <KeyboardControls map={keyboardMap}>
-          <Character />
+          {/* Character Control */}
+          <CharacterController>
+            {/* Replace your model here */}
+            <CharacterModel />
+          </CharacterController>
         </KeyboardControls>
 
         {/* Rough plan */}
