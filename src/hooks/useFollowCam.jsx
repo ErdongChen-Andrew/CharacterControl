@@ -48,7 +48,7 @@ export default function useFollowCam(props) {
   // Mouse scroll event
   const onDocumentMouseWheel = (e) => {
     if (document.pointerLockElement) {
-      const vz = originZDis + e.deltaY * 0.002;
+      const vz = originZDis - e.deltaY * 0.002;
       const vy = followCam.rotation.x + e.movementY * 0.002;
 
       if (vz >= camMaxDis && vz <= camMinDis) {
@@ -98,7 +98,7 @@ export default function useFollowCam(props) {
       document.removeEventListener("mousemove", onDocumentMouseMove);
       document.removeEventListener("mousewheel", onDocumentMouseWheel);
     };
-  }, []);
+  });
 
   return { pivot, followCam, cameraCollisionDetect };
 }

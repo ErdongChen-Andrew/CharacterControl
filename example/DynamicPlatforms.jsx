@@ -68,7 +68,7 @@ export default function DynamicPlatforms() {
       </RigidBody>
 
       {/* Elevating platform */}
-      <RigidBody type="kinematicPosition" ref={verticalMovePlatformRef}>
+      <RigidBody type="kinematicPosition" position={[-25, 0, 0]} ref={verticalMovePlatformRef}>
         <Text
           scale={0.5}
           color="black"
