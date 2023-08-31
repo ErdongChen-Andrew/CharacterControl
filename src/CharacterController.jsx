@@ -756,7 +756,7 @@ export default function CharacterController(props) {
       jumpIdleAnimation();
     }
     // On high sky, play falling animation
-    if (rayHit == null) {
+    if (rayHit == null &&  currentVel.y < 0) {
       duckAnimation();
     }
 

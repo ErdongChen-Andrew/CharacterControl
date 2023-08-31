@@ -69,14 +69,7 @@ export default create(
 
       duck: () => {
         set((state) => {
-          if (
-            state.curAnimation === state.animationSet.jumpIdle ||
-            state.curAnimation === state.animationSet.jump
-          ) {
-            return {};
-          } else {
-            return { curAnimation: state.animationSet.duck };
-          }
+          return { curAnimation: state.animationSet.duck };
         });
       },
 
