@@ -1,17 +1,43 @@
 import { useAnimations, useGLTF, useTexture } from "@react-three/drei";
-import { Suspense, useEffect } from "react";
+import { useControls } from "leva";
+import { Suspense, useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
 import useGame from "./stores/useGame";
 
 export default function CharacterModel(props) {
   // Change the character src to yours
-  const character = useGLTF("./Animated Platformer Character 2D.glb");
-  const animations = useAnimations(character.animations, character.scene);
+  const group = useRef();
+  const { nodes, animations } = useGLTF(
+    "/Animated Platformer Character 2D.glb"
+  );
+  const { actions } = useAnimations(animations, group);
   // gradientMapTexture for MeshToonMaterial
   const gradientMapTexture = useTexture("./textures/3.jpg");
   gradientMapTexture.minFilter = THREE.NearestFilter;
   gradientMapTexture.magFilter = THREE.NearestFilter;
   gradientMapTexture.generateMipmaps = false;
+
+  /**
+   * Debug settings
+   */
+  const { mainColor, outlineColor } = useControls("Character Model", {
+    mainColor: "mediumpurple",
+    outlineColor: "black",
+  });
+
+  /**
+   * Prepare replacing materials
+   */
+  const outlineMaterial = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: outlineColor })
+  );
+  const meshToonMaterial = useMemo(
+    () =>
+      new THREE.MeshToonMaterial({
+        color: mainColor,
+        gradientMap: gradientMapTexture,
+      })
+  );
 
   /**
    * Character animations setup
@@ -34,33 +60,13 @@ export default function CharacterModel(props) {
   };
 
   useEffect(() => {
-    // Receive and cast Shadows, play with outline and color
-    character.scene.traverse((child) => {
-      if (
-        child instanceof THREE.Mesh &&
-        child.material instanceof THREE.MeshStandardMaterial
-      ) {
-        if (child.material.name === "Outline.001") {
-          child.material = new THREE.MeshBasicMaterial({ color: "black" });
-        } else{
-          child.material = new THREE.MeshToonMaterial({
-            color: "mediumpurple",
-            gradientMap: gradientMapTexture,
-          });
-          child.receiveShadow = true;
-          child.castShadow = true;
-        }
-      }
-    });
-
     // Initialize animation set
     initializeAnimationSet(animationSet);
   }, []);
 
   useEffect(() => {
     // Play animation
-    const action =
-      animations.actions[curAnimation ? curAnimation : animationSet.jumpIdle];
+    const action = actions[curAnimation ? curAnimation : animationSet.jumpIdle];
 
     // For jump and jump land animation, only play once and clamp when finish
     if (
@@ -87,11 +93,6 @@ export default function CharacterModel(props) {
 
   return (
     <Suspense fallback={<capsuleGeometry args={[0.3, 0.7]} />}>
-      <primitive
-        object={character.scene}
-        scale={0.45}
-        position={[0, -0.9, 0]}
-      />
       {/* Default capsule modle */}
       {/* <mesh castShadow>
         <capsuleGeometry args={[0.3, 0.7]} />
@@ -101,6 +102,147 @@ export default function CharacterModel(props) {
         <boxGeometry args={[0.5, 0.2, 0.3]} />
         <meshStandardMaterial color="mediumpurple" />
       </mesh> */}
+
+      {/* Replace yours model here */}
+      <group ref={group} {...props} dispose={null}>
+        <group name="Scene">
+          <group name="RootNode">
+            <group
+              name="CharacterArmature"
+              rotation={[-Math.PI / 2, 0, 0]}
+              scale={45}
+              position={[0, -0.9, 0]}
+            >
+              <group name="Arms">
+                <skinnedMesh
+                  name="Arms001"
+                  geometry={nodes.Arms001.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Arms001.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Arms001_1"
+                  geometry={nodes.Arms001_1.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Arms001_1.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Arms001_2"
+                  geometry={nodes.Arms001_2.geometry}
+                  material={outlineMaterial}
+                  skeleton={nodes.Arms001_2.skeleton}
+                />
+              </group>
+              <group name="Body_1">
+                <skinnedMesh
+                  name="Body001"
+                  geometry={nodes.Body001.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Body001.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Body001_1"
+                  geometry={nodes.Body001_1.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Body001_1.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Body001_2"
+                  geometry={nodes.Body001_2.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Body001_2.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Body001_3"
+                  geometry={nodes.Body001_3.geometry}
+                  material={outlineMaterial}
+                  skeleton={nodes.Body001_3.skeleton}
+                />
+              </group>
+              <group name="Ears">
+                <skinnedMesh
+                  name="Ears001"
+                  geometry={nodes.Ears001.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Ears001.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Ears001_1"
+                  geometry={nodes.Ears001_1.geometry}
+                  material={outlineMaterial}
+                  skeleton={nodes.Ears001_1.skeleton}
+                />
+              </group>
+              <group name="Head_1">
+                <skinnedMesh
+                  name="Head001_1"
+                  geometry={nodes.Head001_1.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Head001_1.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Head001_2"
+                  geometry={nodes.Head001_2.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Head001_2.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Head001_3"
+                  geometry={nodes.Head001_3.geometry}
+                  material={outlineMaterial}
+                  skeleton={nodes.Head001_3.skeleton}
+                />
+              </group>
+              <group name="Head001">
+                <skinnedMesh
+                  name="Head002"
+                  geometry={nodes.Head002.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Head002.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Head002_1"
+                  geometry={nodes.Head002_1.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Head002_1.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+                <skinnedMesh
+                  name="Head002_2"
+                  geometry={nodes.Head002_2.geometry}
+                  material={meshToonMaterial}
+                  skeleton={nodes.Head002_2.skeleton}
+                  receiveShadow
+                  castShadow
+                />
+              </group>
+              <primitive object={nodes.Root} />
+            </group>
+          </group>
+        </group>
+      </group>
     </Suspense>
   );
 }
+
+// Change the character src to yours
+useGLTF.preload("/Animated Platformer Character 2D.glb");
