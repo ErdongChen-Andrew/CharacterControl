@@ -11,6 +11,7 @@ export default function Lights() {
     <>
       <directionalLight
         castShadow
+        shadow-normalBias={ 0.06 }
         position={[20, 30, 10]}
         intensity={1.5}
         shadow-mapSize={[1024, 1024]}

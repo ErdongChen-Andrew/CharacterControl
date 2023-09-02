@@ -1,12 +1,17 @@
-import { useAnimations, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF, useTexture } from "@react-three/drei";
 import { Suspense, useEffect } from "react";
 import * as THREE from "three";
 import useGame from "./stores/useGame";
 
 export default function CharacterModel(props) {
   // Change the character src to yours
-  const character = useGLTF("./Animated Platformer Character.glb");
+  const character = useGLTF("./Animated Platformer Character 2D.glb");
   const animations = useAnimations(character.animations, character.scene);
+  // gradientMapTexture for MeshToonMaterial
+  const gradientMapTexture = useTexture("./textures/3.jpg");
+  gradientMapTexture.minFilter = THREE.NearestFilter;
+  gradientMapTexture.magFilter = THREE.NearestFilter;
+  gradientMapTexture.generateMipmaps = false;
 
   /**
    * Character animations setup
@@ -29,16 +34,22 @@ export default function CharacterModel(props) {
   };
 
   useEffect(() => {
-    // Receive and cast Shadows
+    // Receive and cast Shadows, play with outline and color
     character.scene.traverse((child) => {
       if (
         child instanceof THREE.Mesh &&
         child.material instanceof THREE.MeshStandardMaterial
       ) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        child.material.roughness = 1;
-        child.material.metalness = -1;
+        if (child.material.name === "Outline.001") {
+          child.material = new THREE.MeshBasicMaterial({ color: "black" });
+        } else{
+          child.material = new THREE.MeshToonMaterial({
+            color: "mediumpurple",
+            gradientMap: gradientMapTexture,
+          });
+          child.receiveShadow = true;
+          child.castShadow = true;
+        }
       }
     });
 
