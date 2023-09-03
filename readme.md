@@ -70,7 +70,7 @@ const keyboardMap = [
   { name: "rightward", keys: ["ArrowRight", "KeyD"] },
   { name: "jump", keys: ["Space"] },
   { name: "run", keys: ["Shift"] },
-  { name: "triggle", keys: ["KeyF"] },
+  { name: "trigger", keys: ["KeyF"] },
 ];
 
 return (
@@ -158,7 +158,7 @@ const animationSet = {
       /**
        * Additional animations
        */
-      // triggleFunction: ()=>{
+      // triggerFunction: ()=>{
       //    set((state) => {
       //        return { curAnimation: state.animationSet.additionalAnimation };
       //    });
@@ -178,7 +178,7 @@ const jumpIdleAnimation = useGame((state) => state.jumpIdle);
 const jumpLandAnimation = useGame((state) => state.jumpLand);
 const duckAnimation = useGame((state) => state.duck);
 const waveAnimation = useGame((state) => state.wave);
-//const additionalAnimation = useGame((state) => state.triggleFunction);
+//const additionalAnimation = useGame((state) => state.triggerFunction);
 ```
 
 ## Contributions

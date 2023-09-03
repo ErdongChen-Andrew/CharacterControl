@@ -20,6 +20,12 @@ export default create(
         });
       },
 
+      reset: () => {
+        set((state) => {
+          return { curAnimation: state.animationSet.idle };
+        });
+      },
+
       idle: () => {
         set((state) => {
           if (state.curAnimation === state.animationSet.jumpIdle) {
@@ -85,7 +91,7 @@ export default create(
       /**
        * Additional animations
        */
-      // triggleFunction: ()=>{
+      // triggerFunction: ()=>{
       //    set((state) => {
       //        return { curAnimation: state.animationSet.additionalAnimation };
       //    });

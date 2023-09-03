@@ -261,7 +261,7 @@ export default function CharacterController(props) {
   const cameraSetups = {
     camInitDis: props.camInitDis ? props.camInitDis : -5,
     camMaxDis: props.camMaxDis ? props.camMaxDis : -7,
-    camMinDis: props.camMinDis ? props.camMinDis : -0.5,
+    camMinDis: props.camMinDis ? props.camMinDis : 0,
   };
 
   /**
@@ -460,6 +460,16 @@ export default function CharacterController(props) {
       return item.type === "DirectionalLight";
     });
 
+    // Trigger key subscribe for special animation
+    const unSubscribeTrigger = subscribeKeys(
+      (state) => state.trigger,
+      (value) => {
+        if (value) {
+          waveAnimation();
+        }
+      }
+    );
+
     // Animation subscribe
     const unSubscribeAnimation = useGame.subscribe(
       (state) => state.curAnimation,
@@ -469,6 +479,7 @@ export default function CharacterController(props) {
     );
 
     return () => {
+      unSubscribeTrigger();
       unSubscribeAnimation();
     };
   });
@@ -499,7 +510,7 @@ export default function CharacterController(props) {
     /**
      * Getting all the useful keys from useKeyboardControls
      */
-    const { forward, backward, leftward, rightward, jump, run, triggle } =
+    const { forward, backward, leftward, rightward, jump, run, trigger } =
       getKeys();
 
     // Getting moving directions
@@ -756,13 +767,8 @@ export default function CharacterController(props) {
       jumpIdleAnimation();
     }
     // On high sky, play falling animation
-    if (rayHit == null &&  currentVel.y < 0) {
+    if (rayHit == null && currentVel.y < 0) {
       duckAnimation();
-    }
-
-    // Specitial triggle animation
-    if (triggle) {
-      waveAnimation();
     }
   });
 

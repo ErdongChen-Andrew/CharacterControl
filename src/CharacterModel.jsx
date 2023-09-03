@@ -1,4 +1,5 @@
 import { useAnimations, useGLTF, useTexture } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
 import { Suspense, useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
@@ -43,6 +44,7 @@ export default function CharacterModel(props) {
    * Character animations setup
    */
   const curAnimation = useGame((state) => state.curAnimation);
+  const resetAnimation = useGame((state) => state.reset);
   const initializeAnimationSet = useGame(
     (state) => state.initializeAnimationSet
   );
@@ -71,7 +73,8 @@ export default function CharacterModel(props) {
     // For jump and jump land animation, only play once and clamp when finish
     if (
       curAnimation === animationSet.jump ||
-      curAnimation === animationSet.jumpLand
+      curAnimation === animationSet.jumpLand ||
+      curAnimation === animationSet.wave
     ) {
       action.reset().fadeIn(0.1).setLoop(THREE.LoopOnce).play();
       action.clampWhenFinished = true;
@@ -79,15 +82,30 @@ export default function CharacterModel(props) {
       action.reset().fadeIn(0.2).play();
     }
 
+    // When any action is clamp and finished,
+    // change to idle animation and reset animation to null
+    action._mixer.addEventListener("finished", (e) => {
+      actions[animationSet.idle].reset().fadeIn(0.1).play();
+      resetAnimation();
+    });
+
     return () => {
       if (
         curAnimation === animationSet.jump ||
-        curAnimation === animationSet.jumpLand
+        curAnimation === animationSet.jumpLand ||
+        curAnimation === animationSet.wave
       ) {
         action.fadeOut(0.1);
       } else {
         action.fadeOut(0.2);
       }
+
+      // Clean up mixer listener, and empty the _listeners array
+      action._mixer.removeEventListener("finished", (e) => {
+        actions[animationSet.idle].reset().fadeIn(0.1).play();
+        resetAnimation();
+      });
+      action._mixer._listeners = [];
     };
   }, [curAnimation]);
 

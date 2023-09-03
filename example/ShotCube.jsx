@@ -12,14 +12,20 @@ export default function ShotCube() {
   const direction = useMemo(() => new THREE.Vector3());
 
   const clickToCreateBox = () => {
-    camera.parent.getWorldPosition(position);
-    const newMesh = (
-      <mesh position={[position.x, position.y - 0.5, position.z]} castShadow receiveShadow>
-        <boxGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="orange" />
-      </mesh>
-    );
-    setCubeMesh((prevMeshes) => [...prevMeshes, newMesh]);
+    if (document.pointerLockElement) {
+      camera.parent.getWorldPosition(position);
+      const newMesh = (
+        <mesh
+          position={[position.x, position.y - 0.5, position.z]}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[0.5, 0.5, 0.5]} />
+          <meshStandardMaterial color="orange" />
+        </mesh>
+      );
+      setCubeMesh((prevMeshes) => [...prevMeshes, newMesh]);
+    }
   };
 
   useEffect(() => {
@@ -38,9 +44,9 @@ export default function ShotCube() {
   useEffect(() => {
     window.addEventListener("click", () => clickToCreateBox());
 
-    return()=>{
-      window.removeEventListener("click", () => clickToCreateBox())
-    }
+    return () => {
+      window.removeEventListener("click", () => clickToCreateBox());
+    };
   }, []);
 
   return (
