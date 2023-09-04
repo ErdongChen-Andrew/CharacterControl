@@ -504,7 +504,7 @@ export default function CharacterController(props) {
       dirLight.position.x = currentPos.x + 20;
       dirLight.position.y = currentPos.y + 30;
       dirLight.position.z = currentPos.z + 10;
-      dirLight.target.position.copy(currentPos);
+      dirLight.target = characterModelRef.current;
     }
 
     /**
