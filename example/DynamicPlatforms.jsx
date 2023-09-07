@@ -21,29 +21,29 @@ export default function DynamicPlatforms() {
     time = state.clock.elapsedTime;
 
     // Move platform
-    sideMovePlatformRef.current.setNextKinematicTranslation({
+    sideMovePlatformRef.current?.setNextKinematicTranslation({
       x: 5 * Math.sin(time / 2) - 12,
       y: -0.5,
       z: -10,
     });
 
     // Elevate platform
-    verticalMovePlatformRef.current.setNextKinematicTranslation({
+    verticalMovePlatformRef.current?.setNextKinematicTranslation({
       x: -25,
       y: 2 * Math.sin(time / 2) + 2,
       z: 0,
     });
-    verticalMovePlatformRef.current.setNextKinematicRotation(
+    verticalMovePlatformRef.current?.setNextKinematicRotation(
       quaternionRotation.setFromAxisAngle(yRotationAxies, time * 0.5)
     );
 
     // Rotate platform
-    rotatePlatformRef.current.setNextKinematicRotation(
+    rotatePlatformRef.current?.setNextKinematicRotation(
       quaternionRotation.setFromAxisAngle(yRotationAxies, time * 0.5)
     );
 
     // Rotate drum
-    rotationDrumRef.current.setNextKinematicRotation(
+    rotationDrumRef.current?.setNextKinematicRotation(
       quaternionRotation.setFromAxisAngle(xRotationAxies, time * 0.5)
     );
   });

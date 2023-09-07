@@ -495,7 +495,9 @@ export default function CharacterController(props) {
 
   useFrame((state, delta) => {
     // Character current position
-    currentPos.copy(characterRef.current.translation());
+    if (characterRef.current) {
+      currentPos.copy(characterRef.current.translation());
+    }
 
     /**
      * Apply character position to directional light
@@ -546,7 +548,9 @@ export default function CharacterController(props) {
       moveCharacter(delta, run, slopeAngle, movingObjectVelocity);
 
     // Character current velocity
-    currentVel.copy(characterRef.current.linvel());
+    if (characterRef.current) {
+      currentVel.copy(characterRef.current.linvel());
+    }
 
     // Jump impulse
     if (jump && canJump) {
@@ -587,7 +591,7 @@ export default function CharacterController(props) {
     rayHit = world.castRay(
       rayCast,
       rayLength,
-      true,
+      false,
       null,
       null,
       characterRef.current
@@ -617,40 +621,43 @@ export default function CharacterController(props) {
      * Ray detect if on rigid body or dynamic platform, then apply the linear velocity and angular velocity to character
      */
     if (rayHit && canJump) {
-      const rayHitObjectBodyType = rayHit.collider.parent().bodyType();
-      const rayHitObjectBodyMass = rayHit.collider.parent().mass();
-      // Body type 0 is rigid body, body type 1 is fixed body, body type 2 is kinematic body
-      // And iff it stands on big mass object (>0.5)
-      if (
-        (rayHitObjectBodyType === 0 || rayHitObjectBodyType === 2) &&
-        rayHitObjectBodyMass > 0.5
-      ) {
-        isOnMovingObject = true;
-        // Calculate distance between character and moving object
-        distanceFromCharacterToObject
-          .copy(currentPos)
-          .sub(rayHit.collider.parent().translation());
-        // Moving object linear velocity
-        const movingObjectLinvel = rayHit.collider.parent().linvel();
-        // Moving object angular velocity
-        const movingObjectAngvel = rayHit.collider.parent().angvel();
-        // Combine object linear velocity and angular velocity to movingObjectVelocity
-        movingObjectVelocity.set(
-          movingObjectLinvel.x +
-            objectAngvelToLinvel.crossVectors(
-              movingObjectAngvel,
-              distanceFromCharacterToObject
-            ).x,
-          movingObjectLinvel.y,
-          movingObjectLinvel.z +
-            objectAngvelToLinvel.crossVectors(
-              movingObjectAngvel,
-              distanceFromCharacterToObject
-            ).z
-        );
-      } else {
-        isOnMovingObject = false;
-        movingObjectVelocity.set(0, 0, 0);
+      if (rayHit.collider.parent()) {
+        // this deals with any invisible collider object (sensor or air wall)
+        const rayHitObjectBodyType = rayHit.collider.parent().bodyType();
+        const rayHitObjectBodyMass = rayHit.collider.parent().mass();
+        // Body type 0 is rigid body, body type 1 is fixed body, body type 2 is kinematic body
+        // And iff it stands on big mass object (>0.5)
+        if (
+          (rayHitObjectBodyType === 0 || rayHitObjectBodyType === 2) &&
+          rayHitObjectBodyMass > 0.5
+        ) {
+          isOnMovingObject = true;
+          // Calculate distance between character and moving object
+          distanceFromCharacterToObject
+            .copy(currentPos)
+            .sub(rayHit.collider.parent().translation());
+          // Moving object linear velocity
+          const movingObjectLinvel = rayHit.collider.parent().linvel();
+          // Moving object angular velocity
+          const movingObjectAngvel = rayHit.collider.parent().angvel();
+          // Combine object linear velocity and angular velocity to movingObjectVelocity
+          movingObjectVelocity.set(
+            movingObjectLinvel.x +
+              objectAngvelToLinvel.crossVectors(
+                movingObjectAngvel,
+                distanceFromCharacterToObject
+              ).x,
+            movingObjectLinvel.y,
+            movingObjectLinvel.z +
+              objectAngvelToLinvel.crossVectors(
+                movingObjectAngvel,
+                distanceFromCharacterToObject
+              ).z
+          );
+        } else {
+          isOnMovingObject = false;
+          movingObjectVelocity.set(0, 0, 0);
+        }
       }
     }
 
@@ -662,7 +669,7 @@ export default function CharacterController(props) {
     slopeRayHit = world.castRay(
       slopeRayCast,
       slopeRayLength,
-      true,
+      false,
       null,
       null,
       characterRef.current
@@ -674,12 +681,14 @@ export default function CharacterController(props) {
         slopeRayCast,
         slopeRayLength
       )?.normal;
-      actualSlopeNormalVec?.set(
-        actualSlopeNormal.x,
-        actualSlopeNormal.y,
-        actualSlopeNormal.z
-      );
-      actualSlopeAngle = actualSlopeNormalVec?.angleTo(floorNormal);
+      if (actualSlopeNormal) {
+        actualSlopeNormalVec?.set(
+          actualSlopeNormal.x,
+          actualSlopeNormal.y,
+          actualSlopeNormal.z
+        );
+        actualSlopeAngle = actualSlopeNormalVec?.angleTo(floorNormal);
+      }
     }
     if (slopeRayHit && rayHit && slopeRayHit.toi < floatingDis + 0.5) {
       if (canJump) {
@@ -697,7 +706,7 @@ export default function CharacterController(props) {
      * Apply floating force
      */
     if (rayHit != null) {
-      if (canJump) {
+      if (canJump && rayHit.collider.parent()) {
         floatingForce =
           springK * (floatingDis - rayHit.toi) -
           characterRef.current.linvel().y * dampingC;
@@ -714,7 +723,7 @@ export default function CharacterController(props) {
         );
         rayHit.collider
           .parent()
-          .applyImpulseAtPoint(characterMassForce, currentPos, true);
+          ?.applyImpulseAtPoint(characterMassForce, currentPos, true);
       }
     }
 
@@ -745,7 +754,7 @@ export default function CharacterController(props) {
     /**
      * Apply auto balance force to the character
      */
-    if (autoBalance) {
+    if (autoBalance && characterRef.current) {
       autoBalanceCharacter();
     }
 
@@ -790,6 +799,7 @@ export default function CharacterController(props) {
           ]}
           ref={slopeRayOriginRef}
           visible={showSlopeRayOrigin}
+          userData={{camExcludeCollision: true}} // this won't be collide by camera ray
         >
           {/* This is used for positioning the slope ray origin */}
           <boxGeometry args={[0.15, 0.15, 0.15]} />

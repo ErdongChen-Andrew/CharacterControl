@@ -46,42 +46,46 @@ export default function FloatingPlatform() {
      * Ray casting detect if on ground
      */
     // Ray cast for platform 1
-    origin.set(
-      floatingPlateRef.current.translation().x,
-      floatingPlateRef.current.translation().y,
-      floatingPlateRef.current.translation().z
-    );
-    rayHit = world.castRay(
-      rayCast,
-      rayLength,
-      true,
-      null,
-      null,
-      floatingPlateRef.current,
-      floatingPlateRef.current
-    );
+    if (floatingPlateRef.current) {
+      origin.set(
+        floatingPlateRef.current.translation().x,
+        floatingPlateRef.current.translation().y,
+        floatingPlateRef.current.translation().z
+      );
+      rayHit = world.castRay(
+        rayCast,
+        rayLength,
+        false,
+        null,
+        null,
+        floatingPlateRef.current,
+        floatingPlateRef.current
+      );
+    }
     // Ray cast for platform 2
-    origin2.set(
-      floatingPlateRef2.current.translation().x,
-      floatingPlateRef2.current.translation().y,
-      floatingPlateRef2.current.translation().z
-    );
-    rayHit2 = world.castRay(
-      rayCast2,
-      rayLength,
-      true,
-      null,
-      null,
-      floatingPlateRef2.current,
-      floatingPlateRef2.current
-    );
+    if (floatingPlateRef2.current) {
+      origin2.set(
+        floatingPlateRef2.current.translation().x,
+        floatingPlateRef2.current.translation().y,
+        floatingPlateRef2.current.translation().z
+      );
+      rayHit2 = world.castRay(
+        rayCast2,
+        rayLength,
+        false,
+        null,
+        null,
+        floatingPlateRef2.current,
+        floatingPlateRef2.current
+      );
+    }
 
     /**
      * Apply floating force
      */
     // Ray for platform 1
     if (rayHit) {
-      if (rayHit != null) {
+      if (rayHit.collider.parent()) {
         const floatingForce =
           springK * (floatingDis - rayHit.toi) -
           floatingPlateRef.current.linvel().y * dampingC;
@@ -94,7 +98,7 @@ export default function FloatingPlatform() {
 
     // Ray for platform 2
     if (rayHit2) {
-      if (rayHit2 != null) {
+      if (rayHit2.collider.parent()) {
         const floatingForce2 =
           springK * (floatingDis - rayHit2.toi) -
           floatingPlateRef2.current.linvel().y * dampingC;

@@ -1,15 +1,16 @@
 import { useThree } from "@react-three/fiber";
-import { useRapier } from "@react-three/rapier";
+// import { useRapier } from "@react-three/rapier";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 
 export default function useFollowCam(props) {
   const { scene, camera } = useThree();
-  const { rapier, world } = useRapier();
+  // const { rapier, world } = useRapier();
 
   let originZDis = props.camInitDis;
   const camMaxDis = props.camMaxDis;
   const camMinDis = props.camMinDis;
+  const camCollisionOff = 1.5;
   const pivot = useMemo(() => new THREE.Object3D(), []);
   const followCam = useMemo(() => {
     const origin = new THREE.Object3D();
@@ -20,13 +21,22 @@ export default function useFollowCam(props) {
   /** Camera collison detect setups */
   let smallestDistance = null;
   let cameraDistance = null;
+  let intersects = null;
+  let intersectObjects = [];
   const cameraRayDir = useMemo(() => new THREE.Vector3());
   const cameraRayOrigin = useMemo(() => new THREE.Vector3());
   const cameraPosition = useMemo(() => new THREE.Vector3());
   const camLerpingPoint = useMemo(() => new THREE.Vector3());
-  const rayCast = new rapier.Ray(cameraRayOrigin, cameraRayDir);
-  let rayLength = null;
-  let rayHit = null;
+  const camRayCast = new THREE.Raycaster(
+    cameraRayOrigin,
+    cameraRayDir,
+    0,
+    -camMaxDis + camCollisionOff
+  );
+  // Rapier ray setup (optional)
+  // const rayCast = new rapier.Ray(cameraRayOrigin, cameraRayDir);
+  // let rayLength = null;
+  // let rayHit = null;
 
   // Mouse move event
   const onDocumentMouseMove = (e) => {
@@ -66,17 +76,32 @@ export default function useFollowCam(props) {
     cameraRayOrigin.copy(pivot.position);
     camera.getWorldPosition(cameraPosition);
     cameraRayDir.subVectors(cameraPosition, pivot.position);
-    rayLength = cameraRayDir.length();
+    // rayLength = cameraRayDir.length();
 
     // casting ray hit, if object in between character and camera,
     // change the smallestDistance to the ray hit toi
     // otherwise the smallestDistance is same as camera original position (originZDis)
-    rayHit = world.castRay(rayCast, rayLength + 1, true, null, null, character);
-    if (rayHit && rayHit.toi && rayHit.toi > originZDis) {
-      smallestDistance = -rayHit.toi + 0.5;
-    } else if (rayHit == null) {
+    intersects = camRayCast.intersectObjects(intersectObjects);
+    if (
+      intersects.length &&
+      intersects[0].distance < -originZDis + camCollisionOff
+    ) {
+      if (intersects[0].distance < camCollisionOff) {
+        smallestDistance = -0.2;
+      } else {
+        smallestDistance = -intersects[0].distance + camCollisionOff;
+      }
+    } else {
       smallestDistance = originZDis;
     }
+
+    // Rapier ray hit setup (optional)
+    // rayHit = world.castRay(rayCast, rayLength + 1, true, null, null, character);
+    // if (rayHit && rayHit.toi && rayHit.toi > originZDis) {
+    //   smallestDistance = -rayHit.toi + 0.5;
+    // } else if (rayHit == null) {
+    //   smallestDistance = originZDis;
+    // }
 
     // Update camera next lerping position, and lerp the camera
     camLerpingPoint.set(
@@ -85,8 +110,21 @@ export default function useFollowCam(props) {
       smallestDistance * Math.cos(-followCam.rotation.x)
     );
 
-    followCam.position.lerp(camLerpingPoint, delta * 2);
+    followCam.position.lerp(camLerpingPoint, delta * 4); // delta * 2 for rapier ray setup
   };
+
+  useEffect(() => {
+    scene.traverse((mesh) => {
+      if (
+        mesh.isMesh &&
+        mesh.type !== "SkinnedMesh" && // camera won't collide with character
+        mesh.geometry.type !== "InstancedBufferGeometry" && // camera won't collide with text
+        !mesh.userData.camExcludeCollision // for any object that won't be collided by camera ray
+      ) {
+        intersectObjects.push(mesh);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     followCam.add(camera);
