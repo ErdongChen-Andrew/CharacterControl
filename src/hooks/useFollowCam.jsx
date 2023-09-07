@@ -124,7 +124,7 @@ export default function useFollowCam(props) {
         intersectObjects.push(mesh);
       }
     });
-  }, []);
+  });
 
   useEffect(() => {
     followCam.add(camera);
