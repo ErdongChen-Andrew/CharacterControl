@@ -12,7 +12,7 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "@react-three/drei": "^9.77.1",
+    "@react-three/drei": "^9.83.3",
     "@react-three/fiber": "^8.13.3",
     "@react-three/rapier": "^1.1.1",
     "leva": "^0.9.34",

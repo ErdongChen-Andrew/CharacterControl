@@ -1,5 +1,4 @@
 import { useAnimations, useGLTF, useTexture } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
 import { Suspense, useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";

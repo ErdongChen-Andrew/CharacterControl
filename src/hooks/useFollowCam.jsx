@@ -10,7 +10,7 @@ export default function useFollowCam(props) {
   let originZDis = props.camInitDis;
   const camMaxDis = props.camMaxDis;
   const camMinDis = props.camMinDis;
-  const camCollisionOff = 1.5;
+  const camCollisionOff = 0.7;
   const pivot = useMemo(() => new THREE.Object3D(), []);
   const followCam = useMemo(() => {
     const origin = new THREE.Object3D();
@@ -31,7 +31,7 @@ export default function useFollowCam(props) {
     cameraRayOrigin,
     cameraRayDir,
     0,
-    -camMaxDis + camCollisionOff
+    -camMaxDis
   );
   // Rapier ray setup (optional)
   // const rayCast = new rapier.Ray(cameraRayOrigin, cameraRayDir);
@@ -82,15 +82,8 @@ export default function useFollowCam(props) {
     // change the smallestDistance to the ray hit toi
     // otherwise the smallestDistance is same as camera original position (originZDis)
     intersects = camRayCast.intersectObjects(intersectObjects);
-    if (
-      intersects.length &&
-      intersects[0].distance < -originZDis + camCollisionOff
-    ) {
-      if (intersects[0].distance < camCollisionOff) {
-        smallestDistance = -0.2;
-      } else {
-        smallestDistance = -intersects[0].distance + camCollisionOff;
-      }
+    if (intersects.length && intersects[0].distance <= -originZDis) {
+      smallestDistance = -intersects[0].distance * camCollisionOff;
     } else {
       smallestDistance = originZDis;
     }
