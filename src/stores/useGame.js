@@ -30,7 +30,12 @@ export default create(
         set((state) => {
           if (state.curAnimation === state.animationSet.jumpIdle) {
             return { curAnimation: state.animationSet.jumpLand };
-          } else if (state.curAnimation !== state.animationSet.wave) {
+          } else if (
+            state.curAnimation !== state.animationSet.wave &&
+            state.curAnimation !== state.animationSet.attack &&
+            state.curAnimation !== state.animationSet.dance &&
+            state.curAnimation !== state.animationSet.cheer
+          ) {
             return { curAnimation: state.animationSet.idle };
           }
           return {};
@@ -39,13 +44,19 @@ export default create(
 
       walk: () => {
         set((state) => {
-          return { curAnimation: state.animationSet.walk };
+          if (state.curAnimation !== state.animationSet.attack) {
+            return { curAnimation: state.animationSet.walk };
+          }
+          return {};
         });
       },
 
       run: () => {
         set((state) => {
-          return { curAnimation: state.animationSet.run };
+          if (state.curAnimation !== state.animationSet.attack) {
+            return { curAnimation: state.animationSet.run };
+          }
+          return {};
         });
       },
 
@@ -73,16 +84,54 @@ export default create(
         });
       },
 
-      duck: () => {
+      fall: () => {
         set((state) => {
-          return { curAnimation: state.animationSet.duck };
+          return { curAnimation: state.animationSet.fall };
         });
       },
 
       wave: () => {
         set((state) => {
-          if (state.curAnimation === state.animationSet.idle) {
+          if (
+            state.curAnimation === state.animationSet.idle ||
+            state.curAnimation === state.animationSet.dance
+          ) {
             return { curAnimation: state.animationSet.wave };
+          }
+          return {};
+        });
+      },
+
+      dance: () => {
+        set((state) => {
+          if (state.curAnimation === state.animationSet.idle) {
+            return { curAnimation: state.animationSet.dance };
+          }
+          return {};
+        });
+      },
+
+      cheer: () => {
+        set((state) => {
+          if (
+            state.curAnimation === state.animationSet.idle ||
+            state.curAnimation === state.animationSet.dance
+          ) {
+            return { curAnimation: state.animationSet.cheer };
+          }
+          return {};
+        });
+      },
+
+      attack: () => {
+        set((state) => {
+          if (
+            state.curAnimation === state.animationSet.idle ||
+            state.curAnimation === state.animationSet.dance ||
+            state.curAnimation === state.animationSet.walk ||
+            state.curAnimation === state.animationSet.run
+          ) {
+            return { curAnimation: state.animationSet.attack };
           }
           return {};
         });

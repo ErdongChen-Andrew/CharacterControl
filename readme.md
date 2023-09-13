@@ -13,12 +13,24 @@ Simple web based character controller build on [react-three-fiber](https://githu
 
 ## New Features
 
+### (2023-09-13) New Character & Physics Enhancements:
+
+- Incorporate 11 dynamic animations with new floating character, Uncle Pete
+- Implement action and reaction forces on frictionless floating platforms:
+  - Platforms now move opposite to the character's moving direction (Having less impact on havier platforms)
+  - Character also applies drag force (friction) to the standing platform
+  - Character's free fall height now impacts on platform reaction forces
+  - Add extra downward force upon character jumps for more realistic physics
+  
+  [![screenshot](example/UnclePetePhysicsEnhance.png)](https://github.com/erdongchen-andrew/CharacterControl/tree/main/example)
+
 ### (2023-08-28) Character Animations:
 
 - Incorporate 8 built-in dynamic animations (including 3 for jump actions)
 - Flexibility to add and personalize additional animations
 - Fine-tune slope angle's impact on jump direction (fully customizable)
 - Tailor the rejection velocity for sudden changes in movement direction (fully customizable)
+
   [![screenshot](example/CharacterAnimation.png)](https://github.com/erdongchen-andrew/CharacterControl/tree/main/example)
 
 ### (2023-08-10) Camera Enhancement:
@@ -70,6 +82,9 @@ const keyboardMap = [
   { name: "rightward", keys: ["ArrowRight", "KeyD"] },
   { name: "jump", keys: ["Space"] },
   { name: "run", keys: ["Shift"] },
+  { name: "action1", keys: ["1"] },
+  { name: "action2", keys: ["2"] },
+  { name: "action3", keys: ["3"] },
   { name: "trigger", keys: ["KeyF"] },
 ];
 
@@ -97,18 +112,21 @@ If you want use your own character animations, customize the `animationSet` in `
 
 ```js
 // Change the character src to yours
-  const character = useGLTF("./Animated Platformer Character.glb");
+  const { nodes, animations } = useGLTF("/Floating Character.glb");
   ...
 // Rename your character animations here
   const animationSet = {
-    idle: "CharacterArmature|Idle",
-    walk: "CharacterArmature|Walk",
-    run: "CharacterArmature|Run",
-    jump: "CharacterArmature|Jump",
-    jumpIdle: "CharacterArmature|Jump_Idle",
-    jumpLand: "CharacterArmature|Jump_Land",
-    duck: "CharacterArmature|Duck", // This is for falling from high sky
-    wave: "CharacterArmature|Wave",
+    idle: "Idle",
+    walk: "Walk",
+    run: "Run",
+    jump: "Jump_Start",
+    jumpIdle: "Jump_Idle",
+    jumpLand: "Jump_Land",
+    fall: "Climbing", // This is for falling from high sky
+    wave: "Wave",
+    dance: "Dance",
+    cheer: "Cheer",
+    attack: "Attack(1h)",
   };
 ```
 
@@ -121,14 +139,17 @@ For advanced animation setups, follow these steps:
 ```js
 // Rename your character animations here
 const animationSet = {
-  idle: "CharacterArmature|Idle",
-  walk: "CharacterArmature|Walk",
-  run: "CharacterArmature|Run",
-  jump: "CharacterArmature|Jump",
-  jumpIdle: "CharacterArmature|Jump_Idle",
-  jumpLand: "CharacterArmature|Jump_Land",
-  duck: "CharacterArmature|Duck",
-  wave: "CharacterArmature|Wave",
+  idle: "Idle",
+  walk: "Walk",
+  run: "Run",
+  jump: "Jump_Start",
+  jumpIdle: "Jump_Idle",
+  jumpLand: "Jump_Land",
+  fall: "Climbing",
+  wave: "Wave",
+  dance: "Dance",
+  cheer: "Cheer",
+  attack: "Attack(1h)",
   //additinalAnimation: "additinalAnimationName",
 };
 ```
@@ -176,8 +197,11 @@ const runAnimation = useGame((state) => state.run);
 const jumpAnimation = useGame((state) => state.jump);
 const jumpIdleAnimation = useGame((state) => state.jumpIdle);
 const jumpLandAnimation = useGame((state) => state.jumpLand);
-const duckAnimation = useGame((state) => state.duck);
+const fallAnimation = useGame((state) => state.fall);
 const waveAnimation = useGame((state) => state.wave);
+const danceAnimation = useGame((state) => state.dance);
+const cheerAnimation = useGame((state) => state.cheer);
+const attackAnimation = useGame((state) => state.attack);
 //const additionalAnimation = useGame((state) => state.triggerFunction);
 ```
 

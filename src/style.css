@@ -16,9 +16,9 @@ body,
 
 .controlKeys {
   position: absolute;
-  width: 25%;
+  width: 20rem;
   left: 5%;
-  bottom: 10%;
+  bottom: 13%;
   user-select: none;
   -moz-user-select: none;
   -webkit-user-drag: none;

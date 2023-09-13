@@ -1,4 +1,4 @@
-import { RigidBody, useRapier } from "@react-three/rapier";
+import { CuboidCollider, RigidBody, useRapier } from "@react-three/rapier";
 import { useEffect, useRef, useMemo } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -9,7 +9,6 @@ export default function FloatingPlatform() {
   const floatingPlateRef = useRef();
   const floatingPlateRef2 = useRef();
   const { rapier, world } = useRapier();
-  // const rapierWorld = world.raw();
 
   /**
    * Ray setup
@@ -17,16 +16,16 @@ export default function FloatingPlatform() {
   // Platform 1
   const rayLength = 0.8;
   const rayDir = { x: 0, y: -1, z: 0 };
-  const springDirVec = useMemo(() => new THREE.Vector3());
-  const origin = useMemo(() => new THREE.Vector3());
+  const springDirVec = useMemo(() => new THREE.Vector3(), []);
+  const origin = useMemo(() => new THREE.Vector3(), []);
   const rayCast = new rapier.Ray(origin, rayDir);
   let rayHit = null;
   const floatingDis = 0.8;
   const springK = 2.5;
   const dampingC = 0.15;
   // Platform 2
-  const springDirVec2 = useMemo(() => new THREE.Vector3());
-  const origin2 = useMemo(() => new THREE.Vector3());
+  const springDirVec2 = useMemo(() => new THREE.Vector3(), []);
+  const origin2 = useMemo(() => new THREE.Vector3(), []);
   const rayCast2 = new rapier.Ray(origin2, rayDir);
   let rayHit2 = null;
 
@@ -113,7 +112,12 @@ export default function FloatingPlatform() {
   return (
     <>
       {/* Platform 1 */}
-      <RigidBody position={[0, 5, -10]} mass={1} ref={floatingPlateRef}>
+      <RigidBody
+        position={[0, 5, -10]}
+        mass={1}
+        colliders={false}
+        ref={floatingPlateRef}
+      >
         <Text
           scale={0.5}
           color="black"
@@ -123,6 +127,7 @@ export default function FloatingPlatform() {
         >
           Floating Platform push to move
         </Text>
+        <CuboidCollider args={[2.5, 0.1, 2.5]} />
         <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"lightsteelblue"} />
@@ -130,7 +135,12 @@ export default function FloatingPlatform() {
       </RigidBody>
 
       {/* Platform 2 */}
-      <RigidBody position={[7, 5, -10]} mass={1} ref={floatingPlateRef2}>
+      <RigidBody
+        position={[7, 5, -10]}
+        mass={1}
+        colliders={false}
+        ref={floatingPlateRef2}
+      >
         <Text
           scale={0.5}
           color="black"
@@ -140,6 +150,7 @@ export default function FloatingPlatform() {
         >
           Floating Platform push to rotate
         </Text>
+        <CuboidCollider args={[2.5, 0.1, 2.5]} />
         <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"lightsteelblue"} />

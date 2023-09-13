@@ -8,8 +8,8 @@ export default function ShotCube() {
   const [cubeMesh, setCubeMesh] = useState([]);
   const cubeRef = useRef();
 
-  const position = useMemo(() => new THREE.Vector3());
-  const direction = useMemo(() => new THREE.Vector3());
+  const position = useMemo(() => new THREE.Vector3(),[]);
+  const direction = useMemo(() => new THREE.Vector3(),[]);
 
   const clickToCreateBox = () => {
     if (document.pointerLockElement) {
@@ -53,7 +53,7 @@ export default function ShotCube() {
     <>
       {cubeMesh.map((item, i) => {
         return (
-          <RigidBody key={i} ref={cubeRef}>
+          <RigidBody key={i} mass={0.6} ref={cubeRef}>
             {item}
           </RigidBody>
         );

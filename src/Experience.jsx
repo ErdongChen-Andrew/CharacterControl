@@ -32,6 +32,9 @@ export default function Experience() {
     { name: "rightward", keys: ["ArrowRight", "KeyD"] },
     { name: "jump", keys: ["Space"] },
     { name: "run", keys: ["Shift"] },
+    { name: "action1", keys: ["1"] },
+    { name: "action2", keys: ["2"] },
+    { name: "action3", keys: ["3"] },
     { name: "trigger", keys: ["KeyF"] },
   ];
 

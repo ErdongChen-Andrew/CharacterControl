@@ -18,8 +18,11 @@ export default function CharacterController(props) {
   const jumpAnimation = useGame((state) => state.jump);
   const jumpIdleAnimation = useGame((state) => state.jumpIdle);
   const jumpLandAnimation = useGame((state) => state.jumpLand);
-  const duckAnimation = useGame((state) => state.duck);
+  const fallAnimation = useGame((state) => state.fall);
   const waveAnimation = useGame((state) => state.wave);
+  const danceAnimation = useGame((state) => state.dance);
+  const cheerAnimation = useGame((state) => state.cheer);
+  const attackAnimation = useGame((state) => state.attack);
 
   /**
    * Debug settings
@@ -30,6 +33,7 @@ export default function CharacterController(props) {
     turnSpeed,
     sprintMult,
     jumpVel,
+    jumpForceToGroundMult,
     slopJumpMult,
     sprintJumpMult,
     airDragMultiplier,
@@ -70,6 +74,12 @@ export default function CharacterController(props) {
         min: 0,
         max: 10,
         step: 0.01,
+      },
+      jumpForceToGroundMult: {
+        value: 5,
+        min: 0,
+        max: 80,
+        step: 0.1,
       },
       slopJumpMult: {
         value: 0.25,
@@ -123,43 +133,56 @@ export default function CharacterController(props) {
     { collapsed: true }
   );
 
-  const { rayOriginOffest, rayLength, rayDir, floatingDis, springK, dampingC } =
-    useControls(
-      "Floating Ray",
-      {
-        rayOriginOffest: {
-          x: 0,
-          y: -0.35,
-          z: 0,
-        },
-        rayLength: {
-          value: 2,
-          min: 0,
-          max: 10,
-          step: 0.01,
-        },
-        rayDir: { x: 0, y: -1, z: 0 },
-        floatingDis: {
-          value: 0.6,
-          min: 0,
-          max: 2,
-          step: 0.01,
-        },
-        springK: {
-          value: 1.5,
-          min: 0,
-          max: 5,
-          step: 0.01,
-        },
-        dampingC: {
-          value: 0.1,
-          min: 0,
-          max: 3,
-          step: 0.01,
-        },
+  const {
+    rayOriginOffest,
+    rayHitForgiveness,
+    rayLength,
+    rayDir,
+    floatingDis,
+    springK,
+    dampingC,
+  } = useControls(
+    "Floating Ray",
+    {
+      rayOriginOffest: {
+        x: 0,
+        y: -0.35,
+        z: 0,
       },
-      { collapsed: true }
-    );
+      rayHitForgiveness: {
+        value: 0.1,
+        min: 0,
+        max: 0.5,
+        step: 0.01,
+      },
+      rayLength: {
+        value: 2,
+        min: 0,
+        max: 10,
+        step: 0.01,
+      },
+      rayDir: { x: 0, y: -1, z: 0 },
+      floatingDis: {
+        value: 0.6,
+        min: 0,
+        max: 2,
+        step: 0.01,
+      },
+      springK: {
+        value: 2,
+        min: 0,
+        max: 5,
+        step: 0.01,
+      },
+      dampingC: {
+        value: 0.2,
+        min: 0,
+        max: 3,
+        step: 0.01,
+      },
+    },
+    { collapsed: true }
+  );
 
   const {
     showSlopeRayOrigin,
@@ -213,13 +236,13 @@ export default function CharacterController(props) {
         value: true,
       },
       autoBalanceSpringK: {
-        value: 0.4,
+        value: 1.2,
         min: 0,
         max: 5,
         step: 0.01,
       },
       autoBalanceDampingC: {
-        value: 0.025,
+        value: 0.04,
         min: 0,
         max: 0.1,
         step: 0.001,
@@ -245,10 +268,15 @@ export default function CharacterController(props) {
 
   // on moving object state
   let isOnMovingObject = false;
-  const movingObjectVelocity = useMemo(() => new THREE.Vector3());
-  const movingObjectVelocityInCharacterDir = useMemo(() => new THREE.Vector3());
-  const distanceFromCharacterToObject = useMemo(() => new THREE.Vector3());
-  const objectAngvelToLinvel = useMemo(() => new THREE.Vector3());
+  const stadingForcePoint = useMemo(() => new THREE.Vector3(), []);
+  const movingObjectDragForce = useMemo(() => new THREE.Vector3(), []);
+  const movingObjectVelocity = useMemo(() => new THREE.Vector3(), []);
+  const movingObjectVelocityInCharacterDir = useMemo(
+    () => new THREE.Vector3(),
+    []
+  );
+  const distanceFromCharacterToObject = useMemo(() => new THREE.Vector3(), []);
+  const objectAngvelToLinvel = useMemo(() => new THREE.Vector3(), []);
 
   /**
    * Initial light setup
@@ -261,7 +289,7 @@ export default function CharacterController(props) {
   const cameraSetups = {
     camInitDis: props.camInitDis ? props.camInitDis : -5,
     camMaxDis: props.camMaxDis ? props.camMaxDis : -7,
-    camMinDis: props.camMinDis ? props.camMinDis : 0,
+    camMinDis: props.camMinDis ? props.camMinDis : -0.7,
   };
 
   /**
@@ -269,28 +297,28 @@ export default function CharacterController(props) {
    */
   const { pivot, followCam, cameraCollisionDetect } =
     useFollowCam(cameraSetups);
-  const pivotPosition = useMemo(() => new THREE.Vector3());
+  const pivotPosition = useMemo(() => new THREE.Vector3(), []);
   const modelEuler = useMemo(() => new THREE.Euler(), []);
   const modelQuat = useMemo(() => new THREE.Quaternion(), []);
-  const moveImpulse = useMemo(() => new THREE.Vector3());
-  const movingDirection = useMemo(() => new THREE.Vector3());
-  const moveAccNeeded = useMemo(() => new THREE.Vector3());
-  const jumpVelocityVec = useMemo(() => new THREE.Vector3());
-  const jumpDirection = useMemo(() => new THREE.Vector3());
-  const currentVel = useMemo(() => new THREE.Vector3());
-  const currentPos = useMemo(() => new THREE.Vector3());
-  const dragForce = useMemo(() => new THREE.Vector3());
-  const dragAngForce = useMemo(() => new THREE.Vector3());
-  const wantToMoveVel = useMemo(() => new THREE.Vector3());
-  const rejectVel = useMemo(() => new THREE.Vector3());
+  const moveImpulse = useMemo(() => new THREE.Vector3(), []);
+  const movingDirection = useMemo(() => new THREE.Vector3(), []);
+  const moveAccNeeded = useMemo(() => new THREE.Vector3(), []);
+  const jumpVelocityVec = useMemo(() => new THREE.Vector3(), []);
+  const jumpDirection = useMemo(() => new THREE.Vector3(), []);
+  const currentVel = useMemo(() => new THREE.Vector3(), []);
+  const currentPos = useMemo(() => new THREE.Vector3(), []);
+  const dragForce = useMemo(() => new THREE.Vector3(), []);
+  const dragAngForce = useMemo(() => new THREE.Vector3(), []);
+  const wantToMoveVel = useMemo(() => new THREE.Vector3(), []);
+  const rejectVel = useMemo(() => new THREE.Vector3(), []);
 
   /**
    * Floating Ray setup
    */
   let floatingForce = null;
-  const springDirVec = useMemo(() => new THREE.Vector3());
-  const characterMassForce = useMemo(() => new THREE.Vector3());
-  const rayOrigin = useMemo(() => new THREE.Vector3());
+  const springDirVec = useMemo(() => new THREE.Vector3(), []);
+  const characterMassForce = useMemo(() => new THREE.Vector3(), []);
+  const rayOrigin = useMemo(() => new THREE.Vector3(), []);
   const rayCast = new rapier.Ray(rayOrigin, rayDir);
   let rayHit = null;
 
@@ -303,10 +331,10 @@ export default function CharacterController(props) {
   let slopeAngle = null;
   let actualSlopeNormal = null;
   let actualSlopeAngle = null;
-  const actualSlopeNormalVec = useMemo(() => new THREE.Vector3());
-  const floorNormal = useMemo(() => new THREE.Vector3(0, 1, 0));
+  const actualSlopeNormalVec = useMemo(() => new THREE.Vector3(), []);
+  const floorNormal = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const slopeRayOriginRef = useRef();
-  const slopeRayorigin = useMemo(() => new THREE.Vector3());
+  const slopeRayorigin = useMemo(() => new THREE.Vector3(), []);
   const slopeRayCast = new rapier.Ray(slopeRayorigin, slopeRayDir);
   let slopeRayHit = null;
 
@@ -428,15 +456,11 @@ export default function CharacterController(props) {
     }
 
     // Move character at proper direction and impulse
-    characterRef.current.applyImpulseAtPoint(
-      moveImpulse,
-      {
-        x: currentPos.x,
-        y: currentPos.y + moveImpulsePointY,
-        z: currentPos.z,
-      },
-      true
-    );
+    characterRef.current.applyImpulseAtPoint(moveImpulse, {
+      x: currentPos.x,
+      y: currentPos.y + moveImpulsePointY,
+      z: currentPos.z,
+    });
   };
 
   /**
@@ -451,7 +475,7 @@ export default function CharacterController(props) {
       -autoBalanceSpringK * characterRef.current.rotation().z -
         characterRef.current.angvel().z * autoBalanceDampingC
     );
-    characterRef.current.applyTorqueImpulse(dragAngForce, true);
+    characterRef.current.applyTorqueImpulse(dragAngForce);
   };
 
   useEffect(() => {
@@ -460,9 +484,9 @@ export default function CharacterController(props) {
       return item.type === "DirectionalLight";
     });
 
-    // Trigger key subscribe for special animation
-    const unSubscribeTrigger = subscribeKeys(
-      (state) => state.trigger,
+    // Action 1 key subscribe for special animation
+    const unSubscribeAction1 = subscribeKeys(
+      (state) => state.action1,
       (value) => {
         if (value) {
           waveAnimation();
@@ -470,17 +494,41 @@ export default function CharacterController(props) {
       }
     );
 
-    // Animation subscribe
-    const unSubscribeAnimation = useGame.subscribe(
-      (state) => state.curAnimation,
+    // Action 2 key subscribe for special animation
+    const unSubscribeAction2 = subscribeKeys(
+      (state) => state.action2,
       (value) => {
-        console.log(value);
+        if (value) {
+          danceAnimation();
+        }
+      }
+    );
+
+    // Action 3 key subscribe for special animation
+    const unSubscribeAction3 = subscribeKeys(
+      (state) => state.action3,
+      (value) => {
+        if (value) {
+          cheerAnimation();
+        }
+      }
+    );
+
+    // Trigger key subscribe for special animation
+    const unSubscribeTrigger = subscribeKeys(
+      (state) => state.trigger,
+      (value) => {
+        if (value) {
+          attackAnimation();
+        }
       }
     );
 
     return () => {
+      unSubscribeAction1();
+      unSubscribeAction2();
+      unSubscribeAction3();
       unSubscribeTrigger();
-      unSubscribeAnimation();
     };
   });
 
@@ -512,8 +560,7 @@ export default function CharacterController(props) {
     /**
      * Getting all the useful keys from useKeyboardControls
      */
-    const { forward, backward, leftward, rightward, jump, run, trigger } =
-      getKeys();
+    const { forward, backward, leftward, rightward, jump, run } = getKeys();
 
     // Getting moving directions
     if (forward) {
@@ -565,9 +612,13 @@ export default function CharacterController(props) {
         jumpDirection
           .set(0, (run ? sprintJumpMult * jumpVel : jumpVel) * slopJumpMult, 0)
           .projectOnVector(actualSlopeNormalVec)
-          .add(jumpVelocityVec),
-        true
+          .add(jumpVelocityVec)
       );
+      // Apply jump force downward to the standing platform
+      characterMassForce.y *= jumpForceToGroundMult;
+      rayHit.collider
+        .parent()
+        ?.applyImpulseAtPoint(characterMassForce, stadingForcePoint, true);
     }
 
     // Rotate character model
@@ -609,7 +660,7 @@ export default function CharacterController(props) {
     //   characterRef.current
     // );
 
-    if (rayHit && rayHit.toi < floatingDis + 0.1) {
+    if (rayHit && rayHit.toi < floatingDis + rayHitForgiveness) {
       if (slopeRayHit && actualSlopeAngle < 1) {
         canJump = true;
       }
@@ -622,6 +673,12 @@ export default function CharacterController(props) {
      */
     if (rayHit && canJump) {
       if (rayHit.collider.parent()) {
+        // Getting the standing force apply point
+        stadingForcePoint.set(
+          rayOrigin.x,
+          rayOrigin.y - rayHit.toi,
+          rayOrigin.z
+        );
         // this deals with any invisible collider object (sensor or air wall)
         const rayHitObjectBodyType = rayHit.collider.parent().bodyType();
         const rayHitObjectBodyMass = rayHit.collider.parent().mass();
@@ -632,6 +689,7 @@ export default function CharacterController(props) {
           rayHitObjectBodyMass > 0.5
         ) {
           isOnMovingObject = true;
+
           // Calculate distance between character and moving object
           distanceFromCharacterToObject
             .copy(currentPos)
@@ -654,6 +712,27 @@ export default function CharacterController(props) {
                 distanceFromCharacterToObject
               ).z
           );
+
+          // Apply opposite drage force to the stading rigid body, body type 0
+          // Character moving and unmoving should provide different drag force to the platform
+          if (rayHitObjectBodyType === 0) {
+            if (!forward && !backward && !leftward && !rightward && canJump) {
+              movingObjectDragForce.set(
+                (currentVel.x - movingObjectVelocity.x) * dragDampingC,
+                0,
+                (currentVel.z - movingObjectVelocity.z) * dragDampingC
+              );
+            } else {
+              movingObjectDragForce.copy(moveImpulse).negate();
+            }
+            rayHit.collider
+              .parent()
+              .applyImpulseAtPoint(
+                movingObjectDragForce,
+                stadingForcePoint,
+                true
+              );
+          }
         } else {
           isOnMovingObject = false;
           movingObjectVelocity.set(0, 0, 0);
@@ -714,16 +793,11 @@ export default function CharacterController(props) {
           springDirVec.set(0, floatingForce, 0)
         );
 
-        // Apply opposite force to standing object
-        characterMassForce.set(
-          0,
-          (-characterRef.current.mass() * characterRef.current.gravityScale()) /
-            3,
-          0
-        );
+        // Apply opposite force to standing object (gravity g in rapier is 0.11 ?_?)
+        characterMassForce.set(0, floatingForce > 0 ? -floatingForce : 0, 0);
         rayHit.collider
           .parent()
-          ?.applyImpulseAtPoint(characterMassForce, currentPos, true);
+          ?.applyImpulseAtPoint(characterMassForce, stadingForcePoint, true);
       }
     }
 
@@ -747,7 +821,7 @@ export default function CharacterController(props) {
           0,
           (movingObjectVelocity.z - currentVel.z) * dragDampingC * 2
         );
-        characterRef.current.applyImpulse(dragForce, true);
+        characterRef.current.applyImpulse(dragForce);
       }
     }
 
@@ -761,7 +835,7 @@ export default function CharacterController(props) {
     /**
      * Camera collision detect
      */
-    cameraCollisionDetect(characterRef.current, delta);
+    cameraCollisionDetect(delta);
 
     /**
      * Apply all the animations
@@ -777,16 +851,17 @@ export default function CharacterController(props) {
     }
     // On high sky, play falling animation
     if (rayHit == null && currentVel.y < 0) {
-      duckAnimation();
+      fallAnimation();
     }
   });
 
   return (
     <RigidBody
       colliders={false}
-      position={[0, 3, 0]}
+      position={[0, 5, 0]}
       friction={-0.5}
       gravityScale={1.2}
+      canSleep={false}
       ref={characterRef}
     >
       <CapsuleCollider args={[0.35, 0.3]} />
@@ -799,7 +874,7 @@ export default function CharacterController(props) {
           ]}
           ref={slopeRayOriginRef}
           visible={showSlopeRayOrigin}
-          userData={{camExcludeCollision: true}} // this won't be collide by camera ray
+          userData={{ camExcludeCollision: true }} // this won't be collide by camera ray
         >
           {/* This is used for positioning the slope ray origin */}
           <boxGeometry args={[0.15, 0.15, 0.15]} />

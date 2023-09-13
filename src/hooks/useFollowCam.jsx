@@ -23,10 +23,10 @@ export default function useFollowCam(props) {
   let cameraDistance = null;
   let intersects = null;
   let intersectObjects = [];
-  const cameraRayDir = useMemo(() => new THREE.Vector3());
-  const cameraRayOrigin = useMemo(() => new THREE.Vector3());
-  const cameraPosition = useMemo(() => new THREE.Vector3());
-  const camLerpingPoint = useMemo(() => new THREE.Vector3());
+  const cameraRayDir = useMemo(() => new THREE.Vector3(), []);
+  const cameraRayOrigin = useMemo(() => new THREE.Vector3(), []);
+  const cameraPosition = useMemo(() => new THREE.Vector3(), []);
+  const camLerpingPoint = useMemo(() => new THREE.Vector3(), []);
   const camRayCast = new THREE.Raycaster(
     cameraRayOrigin,
     cameraRayDir,
@@ -70,7 +70,7 @@ export default function useFollowCam(props) {
     return false;
   };
 
-  const cameraCollisionDetect = (character, delta) => {
+  const cameraCollisionDetect = (delta) => {
     // Update collision detect ray origin and pointing direction
     // Which is from pivot point to camera position
     cameraRayOrigin.copy(pivot.position);
@@ -83,7 +83,10 @@ export default function useFollowCam(props) {
     // otherwise the smallestDistance is same as camera original position (originZDis)
     intersects = camRayCast.intersectObjects(intersectObjects);
     if (intersects.length && intersects[0].distance <= -originZDis) {
-      smallestDistance = -intersects[0].distance * camCollisionOff;
+      smallestDistance =
+        -intersects[0].distance * camCollisionOff < -0.7
+          ? -intersects[0].distance * camCollisionOff
+          : -0.7;
     } else {
       smallestDistance = originZDis;
     }
@@ -107,19 +110,20 @@ export default function useFollowCam(props) {
   };
 
   useEffect(() => {
+    // Prepare for camera ray intersect objects
     scene.traverse((mesh) => {
       if (
         mesh.isMesh &&
         mesh.type !== "SkinnedMesh" && // camera won't collide with character
         mesh.geometry.type !== "InstancedBufferGeometry" && // camera won't collide with text
-        !mesh.userData.camExcludeCollision // for any object that won't be collided by camera ray
+        !mesh.userData.camExcludeCollision && // for any object that won't be collided by camera ray
+        !mesh.name.startsWith("mug")
       ) {
         intersectObjects.push(mesh);
       }
     });
-  });
 
-  useEffect(() => {
+    // Prepare for followCam and pivot point
     followCam.add(camera);
     pivot.add(followCam);
 

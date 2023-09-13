@@ -1,6 +1,10 @@
 import { Text } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { CylinderCollider, RigidBody } from "@react-three/rapier";
+import {
+  CuboidCollider,
+  CylinderCollider,
+  RigidBody,
+} from "@react-three/rapier";
 import { useRef, useMemo } from "react";
 import * as THREE from "three";
 
@@ -15,7 +19,7 @@ export default function DynamicPlatforms() {
   const xRotationAxies = new THREE.Vector3(1, 0, 0);
   const yRotationAxies = new THREE.Vector3(0, 1, 0);
   const zRotationAxies = new THREE.Vector3(0, 0, 1);
-  const quaternionRotation = useMemo(() => new THREE.Quaternion());
+  const quaternionRotation = useMemo(() => new THREE.Quaternion(), []);
 
   useFrame((state) => {
     time = state.clock.elapsedTime;
@@ -51,7 +55,11 @@ export default function DynamicPlatforms() {
   return (
     <>
       {/* Moving platform */}
-      <RigidBody type="kinematicPosition" ref={sideMovePlatformRef}>
+      <RigidBody
+        type="kinematicPosition"
+        ref={sideMovePlatformRef}
+        colliders={false}
+      >
         <Text
           scale={0.5}
           color="black"
@@ -61,6 +69,7 @@ export default function DynamicPlatforms() {
         >
           Kinematic Moving Platform
         </Text>
+        <CuboidCollider args={[2.5, 0.1, 2.5]} />
         <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"moccasin"} />
@@ -68,7 +77,12 @@ export default function DynamicPlatforms() {
       </RigidBody>
 
       {/* Elevating platform */}
-      <RigidBody type="kinematicPosition" position={[-25, 0, 0]} ref={verticalMovePlatformRef}>
+      <RigidBody
+        type="kinematicPosition"
+        position={[-25, 0, 0]}
+        ref={verticalMovePlatformRef}
+        colliders={false}
+      >
         <Text
           scale={0.5}
           color="black"
@@ -79,6 +93,7 @@ export default function DynamicPlatforms() {
         >
           Kinematic Elevating Platform
         </Text>
+        <CuboidCollider args={[2.5, 0.1, 2.5]} />
         <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"moccasin"} />
@@ -90,6 +105,7 @@ export default function DynamicPlatforms() {
         type="kinematicPosition"
         position={[-25, -0.5, -10]}
         ref={rotatePlatformRef}
+        colliders={false}
       >
         <Text
           scale={0.5}
@@ -100,6 +116,7 @@ export default function DynamicPlatforms() {
         >
           Kinematic Rotating Platform
         </Text>
+        <CuboidCollider args={[2.5, 0.1, 2.5]} />
         <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
           <meshStandardMaterial color={"moccasin"} />
