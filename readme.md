@@ -24,27 +24,7 @@ Simple web based character controller build on [react-three-fiber](https://githu
   
   [![screenshot](example/UnclePetePhysicsEnhance.png)](https://github.com/erdongchen-andrew/CharacterControl/tree/main/example)
 
-### (2023-08-28) Character Animations:
-
-- Incorporate 8 built-in dynamic animations (including 3 for jump actions)
-- Flexibility to add and personalize additional animations
-- Fine-tune slope angle's impact on jump direction (fully customizable)
-- Tailor the rejection velocity for sudden changes in movement direction (fully customizable)
-
-  [![screenshot](example/CharacterAnimation.png)](https://github.com/erdongchen-andrew/CharacterControl/tree/main/example)
-
-### (2023-08-10) Camera Enhancement:
-
-- Collision detection
-- Zoom in/out capability
-- Expanded movement range
-- Improved tracking smoothness
-
-### (2023-07-27) Character Auto Balance:
-
-- Character tilts forward/backward while in motion
-- Automatically returns to upright position after a hit or attack
-- Stability customization: Users can fine-tune the balance sensitivity to match their gameplay style
+Check out the [featurelog.md](/featurelog.md) for details on previous updates and features.
 
 ## Project Link
 
