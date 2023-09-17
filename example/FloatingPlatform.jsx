@@ -8,6 +8,7 @@ export default function FloatingPlatform() {
   // Preset
   const floatingPlateRef = useRef();
   const floatingPlateRef2 = useRef();
+  const floatingMovingPlateRef = useRef();
   const { rapier, world } = useRapier();
 
   /**
@@ -28,6 +29,13 @@ export default function FloatingPlatform() {
   const origin2 = useMemo(() => new THREE.Vector3(), []);
   const rayCast2 = new rapier.Ray(origin2, rayDir);
   let rayHit2 = null;
+  // Moving Platform
+  const springDirVecMove = useMemo(() => new THREE.Vector3(), []);
+  const originMove = useMemo(() => new THREE.Vector3(), []);
+  const rayCastMove = new rapier.Ray(originMove, rayDir);
+  const movingVel = useMemo(() => new THREE.Vector3(), []);
+  let movingDir = 1;
+  let rayHitMove = null;
 
   useEffect(() => {
     // Loack platform 1 rotation
@@ -38,6 +46,10 @@ export default function FloatingPlatform() {
     floatingPlateRef2.current.lockTranslations(true);
     floatingPlateRef2.current.setEnabledRotations(false, true, false);
     floatingPlateRef2.current.setEnabledTranslations(false, true, false);
+
+    // Loack moving platform rotation
+    floatingMovingPlateRef.current.setEnabledRotations(false, true, false);
+    floatingMovingPlateRef.current.setEnabledTranslations(true, true, false);
   }, []);
 
   useFrame(() => {
@@ -78,6 +90,39 @@ export default function FloatingPlatform() {
         floatingPlateRef2.current
       );
     }
+    // Ray cast for moving platform
+    if (floatingMovingPlateRef.current) {
+      originMove.set(
+        floatingMovingPlateRef.current.translation().x,
+        floatingMovingPlateRef.current.translation().y,
+        floatingMovingPlateRef.current.translation().z
+      );
+      rayHitMove = world.castRay(
+        rayCastMove,
+        rayLength,
+        false,
+        null,
+        null,
+        floatingMovingPlateRef.current,
+        floatingMovingPlateRef.current
+      );
+      // Apply moving velocity to the platform
+      if (floatingMovingPlateRef.current.translation().x > 10) {
+        movingDir = -1;
+      } else if (floatingMovingPlateRef.current.translation().x < -5) {
+        movingDir = 1;
+      }
+
+      if (movingDir > 0) {
+        floatingMovingPlateRef.current.setLinvel(
+          movingVel.set(2, floatingMovingPlateRef.current.linvel().y, 0)
+        );
+      } else {
+        floatingMovingPlateRef.current.setLinvel(
+          movingVel.set(-2, floatingMovingPlateRef.current.linvel().y, 0)
+        );
+      }
+    }
 
     /**
      * Apply floating force
@@ -103,6 +148,19 @@ export default function FloatingPlatform() {
           floatingPlateRef2.current.linvel().y * dampingC;
         floatingPlateRef2.current.applyImpulse(
           springDirVec2.set(0, floatingForce2, 0),
+          true
+        );
+      }
+    }
+
+    // Ray for moving platform
+    if (rayHitMove) {
+      if (rayHitMove.collider.parent()) {
+        const floatingForceMove =
+          springK * (floatingDis - rayHitMove.toi) -
+          floatingMovingPlateRef.current.linvel().y * dampingC;
+        floatingMovingPlateRef.current.applyImpulse(
+          springDirVecMove.set(0, floatingForceMove, 0),
           true
         );
       }
@@ -153,6 +211,29 @@ export default function FloatingPlatform() {
         <CuboidCollider args={[2.5, 0.1, 2.5]} />
         <mesh receiveShadow castShadow>
           <boxGeometry args={[5, 0.2, 5]} />
+          <meshStandardMaterial color={"lightsteelblue"} />
+        </mesh>
+      </RigidBody>
+
+      {/* Floating moving Platform test */}
+      <RigidBody
+        position={[0, 5, -17]}
+        mass={1}
+        colliders={false}
+        ref={floatingMovingPlateRef}
+      >
+        <Text
+          scale={0.5}
+          color="black"
+          maxWidth={10}
+          textAlign="center"
+          position={[0, 2.5, 0]}
+        >
+          Floating & Moving Platform (rigidbody)
+        </Text>
+        <CuboidCollider args={[1.25, 0.1, 1.25]} />
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[2.5, 0.2, 2.5]} />
           <meshStandardMaterial color={"lightsteelblue"} />
         </mesh>
       </RigidBody>
