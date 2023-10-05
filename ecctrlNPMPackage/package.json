@@ -1,6 +1,6 @@
 {
   "name": "ecctrl",
-  "version": "1.0.12",
+  "version": "1.0.14",
   "main": "Ecctrl.tsx",
   "author": "Erdong Chen",
   "license": "MIT",
