@@ -1,7 +1,7 @@
 {
   "name": "ecctrl",
-  "version": "1.0.11",
-  "main": "Ecctrl.jsx",
+  "version": "1.0.12",
+  "main": "Ecctrl.tsx",
   "author": "Erdong Chen",
   "license": "MIT",
   "description": "A floating rigibody character controller for R3F",
