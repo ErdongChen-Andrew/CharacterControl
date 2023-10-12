@@ -977,7 +977,7 @@ export default function Ecctrl({
       ref={characterRef}
     >
       <CapsuleCollider args={[capsuleHalfHeight, capsuleRadius]} />
-      <group ref={characterModelRef}>
+      <group ref={characterModelRef} userData={{ camExcludeCollision: true }}>
         {/* This mesh is used for positioning the slope ray origin */}
         <mesh
           position={[

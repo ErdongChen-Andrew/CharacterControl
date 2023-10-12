@@ -24,20 +24,20 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/react-dom": "^18.2.8",
-    "@vitejs/plugin-react": "3.0",
+    "@types/react-dom": "^18.2.13",
+    "@vitejs/plugin-react": "^4.1.0",
     "typescript": "^5.2.2",
-    "vite": "^4.3.9"
+    "vite": "^4.4.11"
   },
   "dependencies": {
-    "@react-three/drei": "^9.83.3",
-    "@react-three/fiber": "^8.13.3",
+    "@react-three/drei": "^9.88.0",
+    "@react-three/fiber": "^8.14.5",
     "@react-three/rapier": "^1.1.1",
-    "leva": "^0.9.34",
-    "r3f-perf": "^6.7.0",
+    "leva": "^0.9.35",
+    "r3f-perf": "^7.1.2",
     "react": "18.2",
     "react-dom": "18.2",
     "three": "^0.153.0",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.3"
   }
 }

@@ -1,7 +1,9 @@
 {
   "name": "ecctrl",
-  "version": "1.0.14",
-  "main": "Ecctrl.tsx",
+  "version": "1.0.29",
+  "main": "dist/Ecctrl.cjs.js",
+  "module": "dist/Ecctrl.js",
+  "types": "dist/Ecctrl.d.ts",
   "author": "Erdong Chen",
   "license": "MIT",
   "description": "A floating rigibody character controller for R3F",
@@ -11,7 +13,8 @@
     "threejs",
     "react-three-fiber",
     "control",
-    "character-control"
+    "character-control",
+    "game-control"
   ],
   "repository": {
     "type": "git",
@@ -19,22 +22,22 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build"
+    "build": "tsup Ecctrl.tsx EcctrlAnimation.tsx useFollowCam.tsx useGame.tsx --format cjs,esm --dts"
   },
   "devDependencies": {
-    "@types/react-dom": "^18.2.8",
+    "@types/react-dom": "^18.2.13",
     "@vitejs/plugin-react": "3.0",
+    "tsup": "^7.2.0",
     "typescript": "^5.2.2",
-    "vite": "^4.3.9"
+    "vite": "^4.4.11"
   },
   "dependencies": {
-    "@react-three/drei": "^9.83.3",
-    "@react-three/fiber": "^8.13.3",
+    "@react-three/drei": "^9.88.0",
+    "@react-three/fiber": "^8.14.5",
     "@react-three/rapier": "^1.1.1",
-    "leva": "^0.9.34",
+    "leva": "^0.9.35",
     "react": "18.2",
     "three": "^0.153.0",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.3"
   }
 }

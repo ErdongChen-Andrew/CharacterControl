@@ -9,8 +9,8 @@ import {
 import { useEffect, useRef, useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import { useControls } from "leva";
-import { useFollowCam } from "./hooks/useFollowCam";
-import { useGame } from "./stores/useGame";
+import { useFollowCam } from "./useFollowCam";
+import { useGame } from "./useGame";
 import type {
   Collider,
   RayColliderToi,
@@ -977,7 +977,7 @@ export default function Ecctrl({
       ref={characterRef}
     >
       <CapsuleCollider args={[capsuleHalfHeight, capsuleRadius]} />
-      <group ref={characterModelRef}>
+      <group ref={characterModelRef} userData={{ camExcludeCollision: true }}>
         {/* This mesh is used for positioning the slope ray origin */}
         <mesh
           position={[

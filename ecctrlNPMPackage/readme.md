@@ -50,8 +50,7 @@ return (
         {/* Character Control */}
         <Ecctrl>
           {/* Replace your model here */}
-          {/* camExcludeCollision is used to prevent camera collision */}
-          <CharacterModel userData={{ camExcludeCollision: true }} />
+          <CharacterModel />
         </Ecctrl>
       </KeyboardControls>
       ...
@@ -117,7 +116,7 @@ props: {
 
 // Simply change the value by doing this
 <Ecctrl maxVelLimit={5} jumpVel={4}>
-  <CharacterModel userData={{ camExcludeCollision: true }} />
+  <CharacterModel />
 </Ecctrl>
 ```
 
@@ -159,8 +158,7 @@ return (
             animationSet={animationSet} // Must have property
           >
             {/* Replace your model here */}
-            {/* camExcludeCollision is used to prevent camera collision */}
-            <CharacterModel userData={{ camExcludeCollision: true }} />
+            <CharacterModel />
           </EcctrlAnimation>
         </Ecctrl>
       </KeyboardControls>
