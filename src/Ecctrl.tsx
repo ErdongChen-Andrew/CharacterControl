@@ -63,7 +63,7 @@ export default function Ecctrl({
   // AutoBalance Force setups
   autoBalance = true,
   autoBalanceSpringK = 0.3,
-  autoBalanceDampingC = 0.02,
+  autoBalanceDampingC = 0.03,
   autoBalanceDampingOnY = 0.02,
   // Animation temporary setups
   animated = false,
@@ -101,85 +101,85 @@ export default function Ecctrl({
       "Character Controls",
       {
         maxVelLimit: {
-          value: 2.5,
+          value: maxVelLimit,
           min: 0,
           max: 10,
           step: 0.01,
         },
         turnVelMultiplier: {
-          value: 0.2,
+          value: turnVelMultiplier,
           min: 0,
           max: 1,
           step: 0.01,
         },
         turnSpeed: {
-          value: 15,
+          value: turnSpeed,
           min: 5,
           max: 30,
           step: 0.1,
         },
         sprintMult: {
-          value: 2,
+          value: sprintMult,
           min: 1,
           max: 5,
           step: 0.01,
         },
         jumpVel: {
-          value: 4,
+          value: jumpVel,
           min: 0,
           max: 10,
           step: 0.01,
         },
         jumpForceToGroundMult: {
-          value: 5,
+          value: jumpForceToGroundMult,
           min: 0,
           max: 80,
           step: 0.1,
         },
         slopJumpMult: {
-          value: 0.25,
+          value: slopJumpMult,
           min: 0,
           max: 1,
           step: 0.01,
         },
         sprintJumpMult: {
-          value: 1.2,
+          value: sprintJumpMult,
           min: 1,
           max: 3,
           step: 0.01,
         },
         airDragMultiplier: {
-          value: 0.2,
+          value: airDragMultiplier,
           min: 0,
           max: 1,
           step: 0.01,
         },
         dragDampingC: {
-          value: 0.15,
+          value: dragDampingC,
           min: 0,
           max: 0.5,
           step: 0.01,
         },
         accDeltaTime: {
-          value: 8,
+          value: accDeltaTime,
           min: 0,
           max: 50,
           step: 1,
         },
         rejectVelMult: {
-          value: 4,
+          value: rejectVelMult,
           min: 0,
           max: 10,
           step: 0.1,
         },
         moveImpulsePointY: {
-          value: 0.5,
+          value: moveImpulsePointY,
           min: 0,
           max: 3,
           step: 0.1,
         },
         camFollowMult: {
-          value: 11,
+          value: camFollowMult,
           min: 0,
           max: 15,
           step: 0.1,
@@ -213,7 +213,7 @@ export default function Ecctrl({
           z: 0,
         },
         rayHitForgiveness: {
-          value: 0.1,
+          value: rayHitForgiveness,
           min: 0,
           max: 0.5,
           step: 0.01,
@@ -232,13 +232,13 @@ export default function Ecctrl({
           step: 0.01,
         },
         springK: {
-          value: 2,
+          value: springK,
           min: 0,
           max: 5,
           step: 0.01,
         },
         dampingC: {
-          value: 0.2,
+          value: dampingC,
           min: 0,
           max: 3,
           step: 0.01,
@@ -274,13 +274,13 @@ export default function Ecctrl({
         },
         slopeRayDir: { x: 0, y: -1, z: 0 },
         slopeUpExtraForce: {
-          value: 0.4,
+          value: slopeUpExtraForce,
           min: 0,
           max: 5,
           step: 0.01,
         },
         slopeDownExtraForce: {
-          value: 0.5,
+          value: slopeDownExtraForce,
           min: 0,
           max: 5,
           step: 0.01,
@@ -303,19 +303,19 @@ export default function Ecctrl({
           value: true,
         },
         autoBalanceSpringK: {
-          value: 1.2,
+          value: autoBalanceSpringK,
           min: 0,
           max: 5,
           step: 0.01,
         },
         autoBalanceDampingC: {
-          value: 0.04,
+          value: autoBalanceDampingC,
           min: 0,
           max: 0.1,
           step: 0.001,
         },
         autoBalanceDampingOnY: {
-          value: 0.02,
+          value: autoBalanceDampingOnY,
           min: 0,
           max: 0.1,
           step: 0.001,
@@ -473,18 +473,18 @@ export default function Ecctrl({
           movingObjectVelocityInCharacterDir.x) -
         (currentVel.x -
           movingObjectVelocity.x *
-            Math.sin(angleBetweenCharacterDirAndObjectDir) +
+          Math.sin(angleBetweenCharacterDirAndObjectDir) +
           rejectVel.x * (isOnMovingObject ? 0 : rejectVelMult))) /
-        accDeltaTime,
+      accDeltaTime,
       0,
       (movingDirection.z *
         (maxVelLimit * (run ? sprintMult : 1) +
           movingObjectVelocityInCharacterDir.z) -
         (currentVel.z -
           movingObjectVelocity.z *
-            Math.sin(angleBetweenCharacterDirAndObjectDir) +
+          Math.sin(angleBetweenCharacterDirAndObjectDir) +
           rejectVel.z * (isOnMovingObject ? 0 : rejectVelMult))) /
-        accDeltaTime
+      accDeltaTime
     );
 
     // Wanted to move force function: F = ma
@@ -503,19 +503,19 @@ export default function Ecctrl({
     if (!characterRotated) {
       moveImpulse.set(
         moveForceNeeded.x *
-          turnVelMultiplier *
-          (canJump ? 1 : airDragMultiplier), // if it's in the air, give it less control
+        turnVelMultiplier *
+        (canJump ? 1 : airDragMultiplier), // if it's in the air, give it less control
         slopeAngle === null || slopeAngle == 0 // if it's on a slope, apply extra up/down force to the body
           ? 0
           : movingDirection.y *
-              turnVelMultiplier *
-              (movingDirection.y > 0 // check it is on slope up or slope down
-                ? slopeUpExtraForce
-                : slopeDownExtraForce) *
-              (run ? sprintMult : 1),
-        moveForceNeeded.z *
           turnVelMultiplier *
-          (canJump ? 1 : airDragMultiplier) // if it's in the air, give it less control
+          (movingDirection.y > 0 // check it is on slope up or slope down
+            ? slopeUpExtraForce
+            : slopeDownExtraForce) *
+          (run ? sprintMult : 1),
+        moveForceNeeded.z *
+        turnVelMultiplier *
+        (canJump ? 1 : airDragMultiplier) // if it's in the air, give it less control
       );
     }
     // If character complete turning, change the impulse quaternion default
@@ -525,10 +525,10 @@ export default function Ecctrl({
         slopeAngle === null || slopeAngle == 0 // if it's on a slope, apply extra up/down force to the body
           ? 0
           : movingDirection.y *
-              (movingDirection.y > 0 // check it is on slope up or slope down
-                ? slopeUpExtraForce
-                : slopeDownExtraForce) *
-              (run ? sprintMult : 1),
+          (movingDirection.y > 0 // check it is on slope up or slope down
+            ? slopeUpExtraForce
+            : slopeDownExtraForce) *
+          (run ? sprintMult : 1),
         moveForceNeeded.z * (canJump ? 1 : airDragMultiplier)
       );
     }
@@ -551,11 +551,11 @@ export default function Ecctrl({
   const autoBalanceCharacter = () => {
     dragAngForce.set(
       -autoBalanceSpringK * characterRef.current.rotation().x -
-        characterRef.current.angvel().x * autoBalanceDampingC,
+      characterRef.current.angvel().x * autoBalanceDampingC,
       -autoBalanceSpringK * characterRef.current.rotation().y -
-        characterRef.current.angvel().y * autoBalanceDampingOnY,
+      characterRef.current.angvel().y * autoBalanceDampingOnY,
       -autoBalanceSpringK * characterRef.current.rotation().z -
-        characterRef.current.angvel().z * autoBalanceDampingC
+      characterRef.current.angvel().z * autoBalanceDampingC
     );
     characterRef.current.applyTorqueImpulse(dragAngForce, false);
   };
@@ -565,7 +565,7 @@ export default function Ecctrl({
     if (followLight) {
       dirLight = characterModelRef.current.parent.parent.children.find(
         (item) => {
-          return item.type === "DirectionalLight";
+          return item.name === "followLight";
         }
       ) as THREE.DirectionalLight;
     }
@@ -798,16 +798,16 @@ export default function Ecctrl({
           // Combine object linear velocity and angular velocity to movingObjectVelocity
           movingObjectVelocity.set(
             movingObjectLinvel.x +
-              objectAngvelToLinvel.crossVectors(
-                movingObjectAngvel,
-                distanceFromCharacterToObject
-              ).x,
+            objectAngvelToLinvel.crossVectors(
+              movingObjectAngvel,
+              distanceFromCharacterToObject
+            ).x,
             movingObjectLinvel.y,
             movingObjectLinvel.z +
-              objectAngvelToLinvel.crossVectors(
-                movingObjectAngvel,
-                distanceFromCharacterToObject
-              ).z
+            objectAngvelToLinvel.crossVectors(
+              movingObjectAngvel,
+              distanceFromCharacterToObject
+            ).z
           );
 
           // Apply opposite drage force to the stading rigid body, body type 0
