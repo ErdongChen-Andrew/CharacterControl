@@ -44,4 +44,4 @@ const build = defineConfig({
   ]
 })
 
-export default (process.argv[2] || !process.env.VERCEL) ? build : dev
+export default process.argv[2] ? build : dev
