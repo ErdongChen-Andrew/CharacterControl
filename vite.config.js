@@ -13,6 +13,12 @@ const dev = defineConfig({
     host: true,
     open: !isCodeSandbox // Open if it's not a CodeSandbox
   },
+  start:
+    {
+        outDir: '../vercel',
+        emptyOutDir: true,
+        sourcemap: true
+    }
 })
 
 const build = defineConfig({
