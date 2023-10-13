@@ -6,19 +6,13 @@ const isCodeSandbox = 'SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in proc
 
 const dev = defineConfig({
   plugins: [react()],
-  root: 'src/',
+  root: 'example/',
   publicDir: "../public/",
   base: './',
   server: {
     host: true,
     open: !isCodeSandbox // Open if it's not a CodeSandbox
-  },
-  start:
-    {
-        outDir: '../vercel',
-        emptyOutDir: true,
-        sourcemap: true
-    }
+  }
 })
 
 const build = defineConfig({
@@ -50,4 +44,4 @@ const build = defineConfig({
   ]
 })
 
-export default process.argv[2] ? build : dev
+export default (process.argv[2] || !process.env.VERCEL) ? build : dev
