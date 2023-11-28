@@ -1153,7 +1153,7 @@ const Ecctrl = forwardRef<RapierRigidBody, EcctrlProps>(({
       {...props}
     >
       <CapsuleCollider
-        name="character-body-capsule-collider"
+        name="character-capsule-collider"
         args={[capsuleHalfHeight, capsuleRadius]} 
       />
       <group ref={characterModelRef} userData={{ camExcludeCollision: true }}>
