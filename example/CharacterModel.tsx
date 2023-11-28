@@ -212,11 +212,7 @@ export default function CharacterModel(props: CharacterModelProps) {
 
       {/* Replace yours model here */}
       {/* Head collider */}
-      <BallCollider
-        name="character-head-ball-collider"
-        args={[0.5]}
-        position={[0, 0.45, 0]}
-      />
+      <BallCollider args={[0.5]} position={[0, 0.45, 0]} />
       {/* Right hand collider */}
       <mesh ref={rightHandRef} />
       <BallCollider
