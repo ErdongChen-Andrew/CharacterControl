@@ -19,7 +19,7 @@
 
 `<Ecctrl mode="FixedCamera">`
 
-[![screenshot](example/EcctrlFixedCamera.png)]
+![screenshot](example/EcctrlFixedCamera.png)
 
 Check out the [featurelog.md](/featurelog.md) for details on previous updates and features.
 
