@@ -543,7 +543,7 @@ const Ecctrl: ForwardRefRenderFunction<RapierRigidBody, EcctrlProps> = ({
     camMinDis,
     camInitDir,
     camMoveSpeed: isModeFixedCamera ? 0 : camMoveSpeed, // Disable camera move in fixed camera mode
-    camZoomSpeed: isModeFixedCamera ? 0 : camMoveSpeed, // Disable camera zoom in fixed camera mode
+    camZoomSpeed: isModeFixedCamera ? 0 : camZoomSpeed, // Disable camera zoom in fixed camera mode
     camCollisionOffset
   };
 
