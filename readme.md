@@ -162,8 +162,8 @@ EcctrlProps: {
   autoBalance: true, // Enable auto-balance
   autoBalanceSpringK: 0.3, // Auto-balance spring constant
   autoBalanceDampingC: 0.03, // Auto-balance damping coefficient
-  autoBalanceSpringOnY: 0.5, // Auto-balance spring on Y-axis 
-  autoBalanceDampingOnY: 0.015, // Auto-balance damping on Y-axis 
+  autoBalanceSpringOnY: 0.5, // Auto-balance spring on Y-axis
+  autoBalanceDampingOnY: 0.015, // Auto-balance damping on Y-axis
   // Animation temporary setups
   animated: false, // Enable animation
   // Mode setups
@@ -417,7 +417,7 @@ pressButton1();
 
 ### Ecctrl Mode
 
-Activate different modes in Ecctrl by including the desired mode inside Ecctrl component: 
+Activate different modes in Ecctrl by including the desired mode inside Ecctrl component:
 `<Ecctrl mode="PointToMove">`.
 
 #### 1. "PointToMove" Mode ([CodeSandbox Demo](https://codesandbox.io/p/sandbox/ecctrl-pointtomove-m9z6xh?file=%2Fsrc%2FMap.js%3A46%2C19))
@@ -439,10 +439,11 @@ If you would like to quickly set up a first-person mode, you can modify these pr
 
 ```js
 <Ecctrl
+  camCollision={false} // disable camera collision detect (useless in FP mode)
   camInitDis={-0.01} // camera intial position
   camMinDis={-0.01} // camera zoom in closest position
-  camFollowMult={100} // give any big number here, so the camera follows the target (character) instantly
-  camLerpMult={1000} // give any big number here, so the camera lerp to the followCam position instantly
+  camFollowMult={1000} // give a big number here, so the camera follows the target (character) instantly
+  camLerpMult={1000} // give a big number here, so the camera lerp to the followCam position instantly
   turnVelMultiplier={1} // Turning speed same as moving speed
   turnSpeed={100} // give it big turning speed to prevent turning wait time
   mode="CameraBasedMovement" // character's rotation will follow camera's rotation in this mode
