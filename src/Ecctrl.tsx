@@ -135,7 +135,7 @@ const Ecctrl: ForwardRefRenderFunction<CustomEcctrlRigidBody | null, EcctrlProps
   const characterModelRef = useRef<THREE.Group | null>(null);
   const characterModelIndicator: THREE.Object3D = useMemo(() => new THREE.Object3D(), [])
   const defaultControllerKeys = { forward: 12, backward: 13, leftward: 14, rightward: 15, jump: 2, action1: 11, action2: 3, action3: 1, action4: 0 }
-  useImperativeHandle(ref as React.Ref<CustomEcctrlRigidBody | null>, () => {
+  useImperativeHandle<CustomEcctrlRigidBody | null, CustomEcctrlRigidBody | null>(ref, () => {
     if (characterRef.current) {
       characterRef.current.rotateCamera = rotateCamera;
       characterRef.current.rotateCharacterOnY = rotateCharacterOnY;
