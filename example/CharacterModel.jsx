@@ -9,7 +9,8 @@ import {
 import { useControls } from "leva";
 import { Suspense, useEffect, useRef, useMemo, useState } from "react";
 import * as THREE from "three";
-import { useGame } from "../src/stores/useGame";
+// import { useGame } from "../src/stores/useGame";
+import { useGame, EcctrlAnimation } from "../src/Ecctrl";
 import { BallCollider, RapierCollider, vec3 } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 
